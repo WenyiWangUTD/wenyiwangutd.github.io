@@ -1,0 +1,35 @@
+---
+title: "Teaching"
+---
+
+## Teaching Experience
+
+**University of Texas at Dallas** [--- Criminology and Criminal Justice Department]{.text-muted}
+
+**Instructor of Record**
+
+- CRIM 1307 Introduction to Crime and Criminology [in person]{.text-muted} · 2025 Summer
+- CRIM 3324 Gender, Crime and Justice [in person]{.text-muted} · 2025 Spring
+- CRIM 3319 Comparative Justice Systems [online]{.text-muted} · 2024 Fall
+
+**Teaching Assistant --- Graduate Level**
+
+- EPPS 6316 Applied Regression [in person]{.text-muted} · 2026 Spring
+- CRIM 6314 Policing [in person]{.text-muted} · 2024 Summer
+
+**Teaching Assistant --- Undergraduate Level**
+
+- CRIM 4322 Senior Research Seminar [hybrid]{.text-muted} · 2026 Spring
+- CRIM 3319 Comparative Justice Systems [online]{.text-muted} · 2025 Fall
+- CRIM 2316 Corrections [in person]{.text-muted} · 2025 Fall
+- CRIM 3301 Theories of Justice [in person]{.text-muted} · 2023 Fall & 2024 Spring
+- CRIM 3323 Violence and Gun Control [online]{.text-muted} · 2023 Spring
+- CRIM 1301 Introduction to Criminal Justice [in person]{.text-muted} · 2023 Summer
+- CRIM 1307 Introduction to Crime and Criminology [in person]{.text-muted} · 2022 Fall & 2023 Fall
+- EPPS 1110 Critical Issues in the Social Sciences [in person]{.text-muted} · 2022 Fall
+
+**University of Macau** [--- Faculty of Social Science]{.text-muted}
+
+**Teaching Assistant**
+
+- SOCY2015 Policing [in person]{.text-muted} · 2018 Fall

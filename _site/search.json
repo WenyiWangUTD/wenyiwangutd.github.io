@@ -1,0 +1,23 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Wenyi Wang",
+    "section": "",
+    "text": "Welcome to my personal website. This is Wenyi Wang, a PhD student in Criminology, School of Economic, Political and Policy Sciences (EPPS), University of Texas at Dallas.\nMy research interest is developmental criminology, spatial crime pattern analysis, gender and racial difference, and advanced methodology."
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "This website is created using RStudio Quarto."
+  },
+  {
+    "objectID": "assign1.html",
+    "href": "assign1.html",
+    "title": "Wedsite Note",
+    "section": "",
+    "text": "This website is created using RStudio Quarto."
+  }
+]

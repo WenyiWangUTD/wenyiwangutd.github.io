@@ -1,0 +1,28 @@
+---
+title: "Wenyi Wang"
+image: Wenyi W..jpg
+about:
+ template: trestles # or: jolla, solana, marquee, column
+ image-shape: round
+ image-width: 14em
+ links:
+    - icon: envelope
+      text: Email
+      href: mailto:wenyi.wang@utdallas.edu
+    - icon: github
+      text: GitHub
+      href: https://github.com/WenyiWangUTD
+    - icon: mortarboard
+      text: Google Scholar
+      href: https://scholar.google.com/citations?user=dtcbDQQAAAAJ&hl=en
+---
+
+Welcome to my personal website. This is Wenyi Wang, a PhD student in Criminology, School of Economic, Political and Policy Sciences (EPPS), University of Texas at Dallas.
+
+Quantitative criminologist studying how vice market legalization shapes behavioral harm, crime, and inequality among vulnerable populations.
+
+## Areas of Specialization
+
+- Gambling, Vice Markets, and Regulation: causal effects of gambling expansion on crime and harm; spatial analysis on exposure to gambling products and behavioral harm; translational criminology and evidence-based public policy
+
+- Quantitative Methods and Causal Inference: quasi-experimental and survey experiment for policy evaluation, Bayesian models for sparse and zero-inflated outcomes, hierarchical longitudinal modeling for longitudinal data analysis

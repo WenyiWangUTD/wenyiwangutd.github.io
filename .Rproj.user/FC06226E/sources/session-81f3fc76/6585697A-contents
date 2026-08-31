@@ -1,0 +1,34 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "Wenyi Wang"
+  description: "Quantitative criminologist studying how gambling availability and vice market regulation shape crime, behavioral harm, and inequality among vulnerable populations."
+  navbar:
+    left:
+      - text: "Home"
+        href: index.qmd
+      - text: "Research"
+        href: research.qmd
+      - text: "Teaching"
+        href: teaching.qmd
+      - text: "CV"
+        href: 2025CV.pdf
+      - text: "Assignments"
+        menu:
+          - text: "Assignment 1"
+            href: assign1.qmd
+    right:
+      - icon: github
+        href: https://github.com/WenyiWangUTD
+      - icon: envelope
+        href: mailto:wenyi.wang@utdallas.edu
+
+format:
+  html:
+    theme: cosmo # try: flatly, litera, journal, darkly, sandstone
+    css: styles.css
+    toc: true
+
+editor: visual
