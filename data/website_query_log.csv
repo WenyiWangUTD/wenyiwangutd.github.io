@@ -1,0 +1,5 @@
+file,terms,term_type,geography,time_window,category,search_type,pulled_at,query_url
+website_trump_kamala-election_us_5y_2026-09-12.csv,"Trump | Kamala Harris | Election",Search term,US,Past 5 years,All categories,Web Search,2026-09-12 16:38:24 CDT,"https://trends.google.com/trends/explore?date=today%205-y&geo=US&q=Trump%2CKamala%20Harris%2CElection&hl=en"
+website_federal-reserve_us_90d_2026-09-12.csv,Federal Reserve,Search term,US,Past 90 days,All categories,Web Search,2026-09-12 16:39:35 CDT,"https://trends.google.com/trends/explore?date=today%203-m&geo=US&q=Federal%20Reserve&hl=en"
+website_trump_kamala-election_us_90d_2026-09-12.csv,"Trump | Kamala Harris | Election",Search term,US,Past 90 days,All categories,Web Search,2026-09-12 16:41:32 CDT,"https://trends.google.com/trends/explore?date=today%203-m&geo=US&q=Trump%2CKamala%20Harris%2CElection&hl=en"
+website_trump-election_us_5y_2026-09-12.csv,"Trump | Election",Search term,US,Past 5 years,All categories,Web Search,2026-09-12 16:42:19 CDT,"https://trends.google.com/trends/explore?date=today%205-y&geo=US&q=Trump%2CElection&hl=en"

@@ -19,6 +19,8 @@ website:
         menu:
           - text: "Assignment 1"
             href: assign1.qmd
+          - text: "Assignment 2"
+            href: assign2.qmd
     right:
       - icon: github
         href: https://github.com/WenyiWangUTD

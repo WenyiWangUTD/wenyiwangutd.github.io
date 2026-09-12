@@ -1,2 +1,0 @@
-[1,"==> quarto preview index.qmd --to html --no-watch-inputs --no-browse\n\n"]
-[1,"\u001B[91mERROR: YAMLException: bad indentation of a mapping entry (_quarto.yml, 25:10)\n24: \u001B[34m         - icon: github\u001B[91m\n25: \u001B[34m         href: https://github.com/WenyiWangUTD\u001B[91m\n            ~~\n26: \u001B[34m         - icon: envelope\u001B[91m\u001B[39m\n"]

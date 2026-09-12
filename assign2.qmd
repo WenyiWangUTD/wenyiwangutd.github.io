@@ -1,0 +1,111 @@
+---
+title: "Assignment 2: Google Trends, Two Ways"
+author: "Wenyi Wang"
+date: "2026-09-12"
+format:
+  html:
+    embed-resources: true
+    toc: false
+    code-fold: true
+    code-summary: "Show code"
+execute:
+  warning: false
+  message: false
+---
+
+::: {.callout-note title="Data sheet: primary website query"}
+**Terms:** `Trump`, `Kamala Harris`, `Election` (each selected as a *search term*, not a topic)\
+**Geography:** United States (`US`) · **Window:** past five years (`today+5-y`)\
+**Category:** all (`0`) · **Search type:** Web Search (`web`)\
+**Pulled:** 2026-09-12 16:38:24 CDT\
+**Query:** [Google Trends Explore](https://trends.google.com/trends/explore?date=today%205-y&geo=US&q=Trump%2CKamala%20Harris%2CElection&hl=en)
+:::
+
+The website CSV covers **2021-09-12 through 2026-09-06 at weekly intervals**. With the same three terms but a 90-day window, the CSV covers **2026-06-12 through 2026-09-12 daily**. Thus, Google changed the time resolution with the window. My additional current-news term was `Federal Reserve` (US, past 90 days, all categories, Web Search), pulled 2026-09-12 16:39:35 CDT; the term was timely because an FOMC meeting was scheduled for September 15–16 ([Federal Reserve calendar](https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm)).
+
+## R pull and comparison
+
+```{r}
+#| label: r-query
+#| eval: false
+library(gtrendsR)
+library(readr)
+
+r_pull <- gtrends(
+  c("Trump", "Kamala Harris", "Election"),
+  onlyInterest = TRUE, geo = "US", gprop = "web",
+  time = "today+5-y", category = 0
+)
+write_csv(r_pull$interest_over_time,
+          "data/r_trump_kamala-election_us_5y_2026-09-12.csv")
+```
+
+```{r}
+#| label: setup
+#| include: false
+library(readr)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(ggplot2)
+
+trend_num <- function(x) {
+  x <- as.character(x)
+  out <- suppressWarnings(as.numeric(x))
+  out[x == "<1"] <- 0
+  out
+}
+
+web <- read_csv(
+  "data/website_trump_kamala-election_us_5y_2026-09-12.csv",
+  skip = 2, col_types = cols(.default = col_character())
+) |>
+  rename(date = 1) |>
+  pivot_longer(-date, names_to = "keyword", values_to = "hits") |>
+  mutate(date = as.Date(date),
+         keyword = str_remove(keyword, ":.*$"),
+         hits = trend_num(hits))
+
+r <- read_csv(
+  "data/r_trump_kamala-election_us_5y_2026-09-12.csv",
+  show_col_types = FALSE
+) |>
+  transmute(date = as.Date(date), keyword, hits = trend_num(hits))
+```
+
+```{r}
+#| label: fig-methods
+#| fig-cap: "Weekly Google search-interest index. Lines are the website CSV; open points are every thirteenth gtrendsR observation. Exact overlap means the two pulls matched in this run."
+#| fig-width: 9
+#| fig-height: 4.6
+#| echo: true
+ggplot(web, aes(date, hits, color = keyword)) +
+  geom_line(linewidth = 0.55) +
+  geom_point(data = r |> group_by(keyword) |> slice(seq(1, n(), by = 13)),
+             shape = 21, fill = "white", size = 1.7, stroke = 0.7) +
+  facet_wrap(~keyword, ncol = 1, scales = "free_y") +
+  scale_color_manual(values = c("#2A9D8F", "#6C5CE7", "#E76F51")) +
+  labs(x = NULL, y = "Google Trends index (0–100)", color = NULL) +
+  theme_minimal(base_size = 10) +
+  theme(legend.position = "none", panel.grid.minor = element_blank())
+```
+
+After mapping the website's `<1` cells to zero, all **783** aligned observations were identical: mean absolute difference **0**, maximum difference **0**, and therefore no direction of difference. The raw files are still structurally different: the website is wide, uses `Week` and `<1`, and puts the category in a preamble; R is long and adds query metadata to every row. This is a result of these particular pulls, not a guarantee.
+
+Google Trends is not a count. Google says it samples searches, divides each point by total searches for its time and geography, and rescales within the query from 0 to 100. Thus 100 is the query's peak relative interest; 0 generally means too little volume to report, not necessarily no searches. Google also cautions that Trends is not polling and that a spike does not mean a topic is “winning” ([Google Trends FAQ](https://support.google.com/trends/answer/4365533?hl=en)).
+
+## Sensitivity and method choice
+
+Removing `Kamala Harris` and rerunning the five-year website query changed **67 of 522** remaining observations (12.8%). Every changed cell rose in the two-term pull; the largest increase was four index points. This happens because the sample and the within-query normalization are recomputed, so values are comparable only inside the query that produced them.
+
+`Harris` and `Kamala Harris` were not the same series: in a joint R query none of their 261 weekly values matched; the mean absolute gap was 7.46 and the maximum was 35 index points. A search term measures the literal words entered, whereas a Google Trends *topic* groups searches for a concept across wording and languages ([Google's term-versus-topic guide](https://support.google.com/trends/answer/17309543)). The bare surname therefore does not isolate the intended person.
+
+The website is transparent to inspect but manual: its interest-over-time CSV records the category plus term/geography labels, while my separate [query log](data/website_query_log.csv) had to preserve the time window, search type, term-versus-topic choice, and pull time. The R output records `keyword`, `geo`, `time`, `gprop`, and `category` in every row and scales to many scripted terms, countries, and repetitions. Neither route guarantees identical future values, but R makes the procedure far easier to regenerate. It is also fragile: `gtrendsR` depends on an unofficial endpoint, so rate limits or a changed response can break a call; my first website load returned HTTP 429 before a retry succeeded. I cache the first success, retain the raw RDS/CSV, and check row counts, date ranges, and missing values.
+
+With `onlyInterest = FALSE`, `names(tct)` returned `interest_over_time` plus `interest_by_country`, `interest_by_region`, `interest_by_dma`, `interest_by_city`, `related_topics`, and `related_queries`. The single website chart download contained only the first; the other six were absent. The package documents these list-based results and the `onlyInterest` switch ([gtrendsR reference manual](https://cran.r-project.org/web/packages/gtrendsR/gtrendsR.pdf)).
+
+I also completed and cached the required extensions: `Taylor Swift` over `time = "all"`, the same term in Great Britain, the term across `c("US", "GB", "TW")`, and `Taylor Swift`, `Beyonce`, and `Adele` worldwide.
+
+Finally, two identical `Federal Reserve` R calls returned the same 93 daily values in this run. Because Google describes Trends as sampled data with small statistical noise, equality once does not establish stability. Any reported finding should archive its exact pull, be checked with repetitions, and avoid overinterpreting small differences ([Google Trends FAQ](https://support.google.com/trends/answer/4365533?hl=en)).
+
+The complete cached workflow is in [`code/gtrendsR01.R`](code/gtrendsR01.R); derived comparisons are produced by [`code/analyze_trends.R`](code/analyze_trends.R).
