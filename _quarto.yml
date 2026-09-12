@@ -1,6 +1,9 @@
 project:
   type: website
   output-dir: docs
+  resources:
+    - "data/**"
+    - "code/**"
 
 website:
   title: "Wenyi Wang"
