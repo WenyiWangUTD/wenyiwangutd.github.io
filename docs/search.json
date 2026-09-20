@@ -21,32 +21,18 @@
     "text": "Sensitivity and method choice\nRemoving Kamala Harris and rerunning the five-year website query changed 67 of 522 remaining observations (12.8%). Every changed cell rose in the two-term pull; the largest increase was four index points. This happens because the sample and the within-query normalization are recomputed, so values are comparable only inside the query that produced them.\nHarris and Kamala Harris were not the same series: in a joint R query none of their 261 weekly values matched; the mean absolute gap was 7.46 and the maximum was 35 index points. A search term measures the literal words entered, whereas a Google Trends topic groups searches for a concept across wording and languages (Google’s term-versus-topic guide). The bare surname therefore does not isolate the intended person.\nThe website is transparent to inspect but manual: its interest-over-time CSV records the category plus term/geography labels, while my separate query log had to preserve the time window, search type, term-versus-topic choice, and pull time. The R output records keyword, geo, time, gprop, and category in every row and scales to many scripted terms, countries, and repetitions. Neither route guarantees identical future values, but R makes the procedure far easier to regenerate. It is also fragile: gtrendsR depends on an unofficial endpoint, so rate limits or a changed response can break a call; my first website load returned HTTP 429 before a retry succeeded. I cache the first success, retain the raw RDS/CSV, and check row counts, date ranges, and missing values.\nWith onlyInterest = FALSE, names(tct) returned interest_over_time plus interest_by_country, interest_by_region, interest_by_dma, interest_by_city, related_topics, and related_queries. The single website chart download contained only the first; the other six were absent. The package documents these list-based results and the onlyInterest switch (gtrendsR reference manual).\nI also completed and cached the required extensions: Taylor Swift over time = \"all\", the same term in Great Britain, the term across c(\"US\", \"GB\", \"TW\"), and Taylor Swift, Beyonce, and Adele worldwide.\nFinally, two identical Federal Reserve R calls returned the same 93 daily values in this run. Because Google describes Trends as sampled data with small statistical noise, equality once does not establish stability. Any reported finding should archive its exact pull, be checked with repetitions, and avoid overinterpreting small differences (Google Trends FAQ).\nThe complete cached workflow is in code/gtrendsR01.R; derived comparisons are produced by code/analyze_trends.R."
   },
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Wenyi Wang",
+    "objectID": "assign1.html",
+    "href": "assign1.html",
+    "title": "Wedsite Note",
     "section": "",
-    "text": "Welcome to my personal website. This is Wenyi Wang, a PhD student in Criminology, School of Economic, Political and Policy Sciences (EPPS), University of Texas at Dallas.\nQuantitative criminologist studying how vice market legalization shapes behavioral harm, crime, and inequality among vulnerable populations."
+    "text": "This website is created using RStudio Quarto."
   },
   {
-    "objectID": "index.html#areas-of-specialization",
-    "href": "index.html#areas-of-specialization",
-    "title": "Wenyi Wang",
-    "section": "Areas of Specialization",
-    "text": "Areas of Specialization\n\nGambling, Vice Markets, and Regulation: causal effects of gambling expansion on crime and harm; spatial analysis on exposure to gambling products and behavioral harm; translational criminology and evidence-based public policy\nQuantitative Methods and Causal Inference: quasi-experimental and survey experiment for policy evaluation, Bayesian models for sparse and zero-inflated outcomes, hierarchical longitudinal modeling for longitudinal data analysis"
-  },
-  {
-    "objectID": "teaching.html",
-    "href": "teaching.html",
-    "title": "Teaching",
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
     "section": "",
-    "text": "University of Texas at Dallas — Criminology and Criminal Justice Department\nInstructor of Record\n\nCRIM 1307 Introduction to Crime and Criminology in person · 2025 Summer\nCRIM 3324 Gender, Crime and Justice in person · 2025 Spring\nCRIM 3319 Comparative Justice Systems online · 2024 Fall\n\nTeaching Assistant — Graduate Level\n\nEPPS 6316 Applied Regression in person · 2026 Spring\nCRIM 6314 Policing in person · 2024 Summer\n\nTeaching Assistant — Undergraduate Level\n\nCRIM 4322 Senior Research Seminar hybrid · 2026 Spring\nCRIM 3319 Comparative Justice Systems online · 2025 Fall\nCRIM 2316 Corrections in person · 2025 Fall\nCRIM 3301 Theories of Justice in person · 2023 Fall & 2024 Spring\nCRIM 3323 Violence and Gun Control online · 2023 Spring\nCRIM 1301 Introduction to Criminal Justice in person · 2023 Summer\nCRIM 1307 Introduction to Crime and Criminology in person · 2022 Fall & 2023 Fall\nEPPS 1110 Critical Issues in the Social Sciences in person · 2022 Fall\n\nUniversity of Macau — Faculty of Social Science\nTeaching Assistant\n\nSOCY2015 Policing in person · 2018 Fall"
-  },
-  {
-    "objectID": "teaching.html#teaching-experience",
-    "href": "teaching.html#teaching-experience",
-    "title": "Teaching",
-    "section": "",
-    "text": "University of Texas at Dallas — Criminology and Criminal Justice Department\nInstructor of Record\n\nCRIM 1307 Introduction to Crime and Criminology in person · 2025 Summer\nCRIM 3324 Gender, Crime and Justice in person · 2025 Spring\nCRIM 3319 Comparative Justice Systems online · 2024 Fall\n\nTeaching Assistant — Graduate Level\n\nEPPS 6316 Applied Regression in person · 2026 Spring\nCRIM 6314 Policing in person · 2024 Summer\n\nTeaching Assistant — Undergraduate Level\n\nCRIM 4322 Senior Research Seminar hybrid · 2026 Spring\nCRIM 3319 Comparative Justice Systems online · 2025 Fall\nCRIM 2316 Corrections in person · 2025 Fall\nCRIM 3301 Theories of Justice in person · 2023 Fall & 2024 Spring\nCRIM 3323 Violence and Gun Control online · 2023 Spring\nCRIM 1301 Introduction to Criminal Justice in person · 2023 Summer\nCRIM 1307 Introduction to Crime and Criminology in person · 2022 Fall & 2023 Fall\nEPPS 1110 Critical Issues in the Social Sciences in person · 2022 Fall\n\nUniversity of Macau — Faculty of Social Science\nTeaching Assistant\n\nSOCY2015 Policing in person · 2018 Fall"
+    "text": "This website is created using RStudio Quarto."
   },
   {
     "objectID": "research.html",
@@ -70,17 +56,94 @@
     "text": "Grants, Fellowships and Awards\n\n2026 · Inaugural CHABLIS Institute (formerly the CIDMA Institute), Center for Healthy Aging Behaviors and Longitudinal Investigations (CHABLIS) Accepted\n2026 · American Gaming Association Research Funding — $1,500\n2026 · Doctoral Summit Scholarship, Academy of Criminal Justice Sciences (ACJS)\n2025 · Dean of Graduate Education Dissertation Research Award, University of Texas at Dallas — $2,625\n2025 · Spring Student Research Funding, Association of Doctoral Programs in Criminology and Criminal Justice (ADPCCJ) — $700\n2024 · First Place, Graduate Student Paper Award Competition, Southwestern Association of Criminal Justice (SWACJ) — $500\n2021 · Excellent Graduation Thesis, University of Macau\n2017 · Excellent Graduation Thesis, Jinan University 500/5,500\n2014 · Merit Student of San Xia Xiang, Jinan University\n2013–14 · Scholarship of Merit Students, Jinan University 500/5,500\n2013 · Extracurricular Activities Award, Jinan University 100/5,500"
   },
   {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "About",
+    "objectID": "teaching.html",
+    "href": "teaching.html",
+    "title": "Teaching",
     "section": "",
-    "text": "This website is created using RStudio Quarto."
+    "text": "University of Texas at Dallas — Criminology and Criminal Justice Department\nInstructor of Record\n\nCRIM 1307 Introduction to Crime and Criminology in person · 2025 Summer\nCRIM 3324 Gender, Crime and Justice in person · 2025 Spring\nCRIM 3319 Comparative Justice Systems online · 2024 Fall\n\nTeaching Assistant — Graduate Level\n\nEPPS 6316 Applied Regression in person · 2026 Spring\nCRIM 6314 Policing in person · 2024 Summer\n\nTeaching Assistant — Undergraduate Level\n\nCRIM 4322 Senior Research Seminar hybrid · 2026 Spring\nCRIM 3319 Comparative Justice Systems online · 2025 Fall\nCRIM 2316 Corrections in person · 2025 Fall\nCRIM 3301 Theories of Justice in person · 2023 Fall & 2024 Spring\nCRIM 3323 Violence and Gun Control online · 2023 Spring\nCRIM 1301 Introduction to Criminal Justice in person · 2023 Summer\nCRIM 1307 Introduction to Crime and Criminology in person · 2022 Fall & 2023 Fall\nEPPS 1110 Critical Issues in the Social Sciences in person · 2022 Fall\n\nUniversity of Macau — Faculty of Social Science\nTeaching Assistant\n\nSOCY2015 Policing in person · 2018 Fall"
   },
   {
-    "objectID": "assign1.html",
-    "href": "assign1.html",
-    "title": "Wedsite Note",
+    "objectID": "teaching.html#teaching-experience",
+    "href": "teaching.html#teaching-experience",
+    "title": "Teaching",
     "section": "",
-    "text": "This website is created using RStudio Quarto."
+    "text": "University of Texas at Dallas — Criminology and Criminal Justice Department\nInstructor of Record\n\nCRIM 1307 Introduction to Crime and Criminology in person · 2025 Summer\nCRIM 3324 Gender, Crime and Justice in person · 2025 Spring\nCRIM 3319 Comparative Justice Systems online · 2024 Fall\n\nTeaching Assistant — Graduate Level\n\nEPPS 6316 Applied Regression in person · 2026 Spring\nCRIM 6314 Policing in person · 2024 Summer\n\nTeaching Assistant — Undergraduate Level\n\nCRIM 4322 Senior Research Seminar hybrid · 2026 Spring\nCRIM 3319 Comparative Justice Systems online · 2025 Fall\nCRIM 2316 Corrections in person · 2025 Fall\nCRIM 3301 Theories of Justice in person · 2023 Fall & 2024 Spring\nCRIM 3323 Violence and Gun Control online · 2023 Spring\nCRIM 1301 Introduction to Criminal Justice in person · 2023 Summer\nCRIM 1307 Introduction to Crime and Criminology in person · 2022 Fall & 2023 Fall\nEPPS 1110 Critical Issues in the Social Sciences in person · 2022 Fall\n\nUniversity of Macau — Faculty of Social Science\nTeaching Assistant\n\nSOCY2015 Policing in person · 2018 Fall"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Wenyi Wang",
+    "section": "",
+    "text": "Welcome to my personal website. This is Wenyi Wang, a PhD student in Criminology, School of Economic, Political and Policy Sciences (EPPS), University of Texas at Dallas.\nQuantitative criminologist studying how vice market legalization shapes behavioral harm, crime, and inequality among vulnerable populations."
+  },
+  {
+    "objectID": "index.html#areas-of-specialization",
+    "href": "index.html#areas-of-specialization",
+    "title": "Wenyi Wang",
+    "section": "Areas of Specialization",
+    "text": "Areas of Specialization\n\nGambling, Vice Markets, and Regulation: causal effects of gambling expansion on crime and harm; spatial analysis on exposure to gambling products and behavioral harm; translational criminology and evidence-based public policy\nQuantitative Methods and Causal Inference: quasi-experimental and survey experiment for policy evaluation, Bayesian models for sparse and zero-inflated outcomes, hierarchical longitudinal modeling for longitudinal data analysis"
+  },
+  {
+    "objectID": "assign3.html",
+    "href": "assign3.html",
+    "title": "Assignment 3: ACS via tidycensus",
+    "section": "",
+    "text": "For this assignment, I use the 2024 American Community Survey (ACS) five-year estimates to look at how income and poverty vary across Texas counties. I map median household income and rank counties by poverty rate. I use a rate instead of the number of people below poverty because a count would mostly reflect differences in county population size.\n\n\n\n\n\n\nGeography and variables\n\n\n\n\nGeography: Texas counties\nMedian household income: B19013_001\nPopulation below poverty: B17001_002\nPopulation for whom poverty status was determined: B17001_001\nSurvey: 2024 ACS five-year estimates (acs5)\n\n\n\nThe Census API key was installed once in .Renviron; it is not stored in this document or in the public repository."
+  },
+  {
+    "objectID": "assign3.html#research-design",
+    "href": "assign3.html#research-design",
+    "title": "Assignment 3: ACS via tidycensus",
+    "section": "",
+    "text": "For this assignment, I use the 2024 American Community Survey (ACS) five-year estimates to look at how income and poverty vary across Texas counties. I map median household income and rank counties by poverty rate. I use a rate instead of the number of people below poverty because a count would mostly reflect differences in county population size.\n\n\n\n\n\n\nGeography and variables\n\n\n\n\nGeography: Texas counties\nMedian household income: B19013_001\nPopulation below poverty: B17001_002\nPopulation for whom poverty status was determined: B17001_001\nSurvey: 2024 ACS five-year estimates (acs5)\n\n\n\nThe Census API key was installed once in .Renviron; it is not stored in this document or in the public repository."
+  },
+  {
+    "objectID": "assign3.html#variable-metadata-and-data-retrieval",
+    "href": "assign3.html#variable-metadata-and-data-retrieval",
+    "title": "Assignment 3: ACS via tidycensus",
+    "section": "Variable metadata and data retrieval",
+    "text": "Variable metadata and data retrieval\nI first check the variable codes against the 2024 ACS five-year metadata. The current tidycensus interface loads the metadata directly from the Census API, so I do not use the deprecated cache argument.\n\n\nCode\nvars &lt;- load_variables(2024, \"acs5\")\n\nvars |&gt;\n  filter(name %in% c(\"B19013_001\", \"B17001_001\", \"B17001_002\")) |&gt;\n  select(name, label, concept) |&gt;\n  knitr::kable(\n    col.names = c(\"Variable\", \"Label\", \"Concept\"),\n    align = c(\"l\", \"l\", \"l\")\n  )\n\n\n\n\nTable 1: ACS variables used in the analysis.\n\n\n\n\n\n\n\nVariable\nLabel\nConcept\n\n\n\n\nB17001_001\nEstimate!!Total:\nPoverty Status in the Past 12 Months by Sex by Age\n\n\nB17001_002\nEstimate!!Total:!!Income in the past 12 months below poverty level:\nPoverty Status in the Past 12 Months by Sex by Age\n\n\nB19013_001\nEstimate!!Median household income in the past 12 months (in 2024 inflation-adjusted dollars)\nMedian Household Income in the Past 12 Months (in 2024 Inflation-Adjusted Dollars)\n\n\n\n\n\n\nThe next call downloads the estimates, margins of error, and county geometry in wide form. In the resulting column names, E identifies an estimate and M identifies its margin of error.\n\n\nCode\nstate_abbr &lt;- \"TX\"\ngeo_level &lt;- \"county\"\nyear_acs &lt;- 2024\nsurvey_name &lt;- \"acs5\"\n\nmy_vars &lt;- c(\n  income = \"B19013_001\",\n  pov = \"B17001_002\",\n  povden = \"B17001_001\"\n)\n\nacs_wide &lt;- get_acs(\n  geography = geo_level,\n  variables = my_vars,\n  state = state_abbr,\n  year = year_acs,\n  survey = survey_name,\n  geometry = TRUE,\n  output = \"wide\"\n)"
+  },
+  {
+    "objectID": "assign3.html#constructing-the-poverty-rate-and-uncertainty-interval",
+    "href": "assign3.html#constructing-the-poverty-rate-and-uncertainty-interval",
+    "title": "Assignment 3: ACS via tidycensus",
+    "section": "Constructing the poverty rate and uncertainty interval",
+    "text": "Constructing the poverty rate and uncertainty interval\nI calculate the poverty rate by dividing the estimated number of people below poverty by the estimated population for whom poverty status was determined. Because both values come from a sample, I carry their uncertainty into the rate with moe_prop(). ACS margins of error are reported at the 90% confidence level, so I construct each interval as the estimate plus or minus its MOE.\n\n\nCode\nacs_wide &lt;- acs_wide |&gt;\n  mutate(\n    pov_rate = povE / povdenE,\n    pov_rate_moe = moe_prop(povE, povdenE, povM, povdenM),\n    pov_ci_low = pmax(0, pov_rate - pov_rate_moe),\n    pov_ci_high = pmin(1, pov_rate + pov_rate_moe)\n  )\n\nstopifnot(\n  nrow(acs_wide) == 254,\n  !anyNA(acs_wide$incomeE),\n  !anyNA(acs_wide$pov_rate),\n  all(acs_wide$povdenE &gt; 0)\n)\n\nwrite_csv(\n  st_drop_geometry(acs_wide),\n  \"data/acs_TX_county_2024.csv\"\n)"
+  },
+  {
+    "objectID": "assign3.html#median-household-income-map",
+    "href": "assign3.html#median-household-income-map",
+    "title": "Assignment 3: ACS via tidycensus",
+    "section": "Median household income map",
+    "text": "Median household income map\n\n\nCode\nggplot(acs_wide) +\n  geom_sf(aes(fill = incomeE), color = \"white\", linewidth = 0.08) +\n  scale_fill_viridis_c(\n    option = \"C\",\n    name = \"Median household\\nincome (2024 $)\",\n    labels = scales::label_dollar(accuracy = 1, big.mark = \",\")\n  ) +\n  labs(\n    title = \"Median Household Income by County in Texas\",\n    subtitle = \"ACS 2024 five-year estimates\",\n    caption = \"Source: U.S. Census Bureau via tidycensus.\"\n  ) +\n  coord_sf(datum = NA) +\n  theme_void(base_size = 11) +\n  theme(\n    plot.title = element_text(size = 15, face = \"bold\"),\n    plot.subtitle = element_text(size = 10),\n    plot.caption = element_text(size = 8),\n    legend.position = \"right\"\n  )\n\n\n\n\n\nFigure 1: Median household income across Texas counties. Values are ACS 2024 five-year estimates.\n\n\n\n\nEstimated median household income ranges from $36,165 to $127,981. Rockwall and Collin counties are at the high end of the distribution. Swisher, Zavala, Starr, Dimmit, and Zapata counties are among those at the low end. This map shows where the estimates are higher or lower, but it does not explain what caused those differences."
+  },
+  {
+    "objectID": "assign3.html#poverty-rate-ranking",
+    "href": "assign3.html#poverty-rate-ranking",
+    "title": "Assignment 3: ACS via tidycensus",
+    "section": "Poverty-rate ranking",
+    "text": "Poverty-rate ranking\nBefore ranking the counties, I remove the geometry and keep the full-precision values for all calculations. I round only the numbers displayed in the table. The poverty-rate estimate and its MOE are both reported in percentage points.\n\n\nCode\npoverty_data &lt;- acs_wide |&gt;\n  st_drop_geometry() |&gt;\n  filter(!is.na(pov_rate), !is.na(pov_rate_moe), povdenE &gt; 0)\n\ntop10 &lt;- poverty_data |&gt;\n  arrange(desc(pov_rate)) |&gt;\n  slice_head(n = 10) |&gt;\n  mutate(group = \"Highest 10\")\n\nbottom10 &lt;- poverty_data |&gt;\n  arrange(pov_rate) |&gt;\n  slice_head(n = 10) |&gt;\n  mutate(group = \"Lowest 10\")\n\nranked_table &lt;- bind_rows(top10, bottom10) |&gt;\n  group_by(group) |&gt;\n  mutate(rank = row_number()) |&gt;\n  ungroup()\n\ntable_for_display &lt;- ranked_table |&gt;\n  transmute(\n    Group = group,\n    Rank = rank,\n    County = sub(\", Texas$\", \"\", NAME),\n    `Poverty rate` = scales::percent(pov_rate, accuracy = 0.1),\n    `MOE` = scales::percent(pov_rate_moe, accuracy = 0.1),\n    `90% confidence interval` = paste0(\n      scales::percent(pov_ci_low, accuracy = 0.1),\n      \" to \",\n      scales::percent(pov_ci_high, accuracy = 0.1)\n    )\n  )\n\nknitr::kable(\n  table_for_display,\n  col.names = c(\n    \"Group\", \"Rank\", \"County\", \"Poverty rate\",\n    \"MOE\", \"90% confidence interval\"\n  ),\n  align = c(\"l\", \"r\", \"l\", \"r\", \"r\", \"r\")\n)\n\n\n\n\nTable 2: Texas counties with the highest and lowest estimated poverty rates, ACS 2024 five-year estimates. MOEs and confidence intervals use the ACS 90% confidence level.\n\n\n\n\n\n\n\n\n\n\nGroup\nRank\nCounty\nPoverty rate\nMOE\n90% confidence interval\n\n\n\n\nHighest 10\n1\nDimmit County\n41.1%\n8.9%\n32.2% to 50.0%\n\n\nHighest 10\n2\nZapata County\n38.4%\n6.0%\n32.4% to 44.4%\n\n\nHighest 10\n3\nZavala County\n33.9%\n9.5%\n24.4% to 43.5%\n\n\nHighest 10\n4\nStarr County\n33.5%\n3.2%\n30.3% to 36.7%\n\n\nHighest 10\n5\nDuval County\n33.3%\n8.4%\n24.9% to 41.7%\n\n\nHighest 10\n6\nPresidio County\n32.0%\n12.8%\n19.2% to 44.8%\n\n\nHighest 10\n7\nEdwards County\n31.9%\n23.2%\n8.6% to 55.1%\n\n\nHighest 10\n8\nJim Hogg County\n31.4%\n11.1%\n20.3% to 42.6%\n\n\nHighest 10\n9\nSwisher County\n30.1%\n6.9%\n23.2% to 37.0%\n\n\nHighest 10\n10\nKleberg County\n28.1%\n4.3%\n23.8% to 32.4%\n\n\nLowest 10\n1\nRockwall County\n4.0%\n0.7%\n3.4% to 4.7%\n\n\nLowest 10\n2\nSterling County\n4.3%\n2.9%\n1.4% to 7.2%\n\n\nLowest 10\n3\nSutton County\n4.5%\n2.9%\n1.7% to 7.4%\n\n\nLowest 10\n4\nKendall County\n5.0%\n1.4%\n3.6% to 6.5%\n\n\nLowest 10\n5\nArmstrong County\n5.2%\n2.8%\n2.4% to 8.0%\n\n\nLowest 10\n6\nFoard County\n5.6%\n4.4%\n1.2% to 10.0%\n\n\nLowest 10\n7\nRoberts County\n5.6%\n3.9%\n1.8% to 9.5%\n\n\nLowest 10\n8\nLoving County\n6.1%\n2.5%\n3.5% to 8.6%\n\n\nLowest 10\n9\nHemphill County\n6.2%\n3.2%\n3.0% to 9.4%\n\n\nLowest 10\n10\nCollin County\n6.2%\n0.4%\n5.9% to 6.6%\n\n\n\n\n\n\nDimmit County (41.1%) and Zapata County (38.4%) have the two highest point estimates, while Rockwall County (4.0%) and Sterling County (4.3%) have the two lowest. Several of the smaller counties also have wide MOEs, which suggests that the exact ordering is less certain than the point estimates alone make it appear."
+  },
+  {
+    "objectID": "assign3.html#uncertainty-check",
+    "href": "assign3.html#uncertainty-check",
+    "title": "Assignment 3: ACS via tidycensus",
+    "section": "Uncertainty check",
+    "text": "Uncertainty check\n\n\nCode\noverlap_example &lt;- ranked_table |&gt;\n  filter(NAME %in% c(\"Dimmit County, Texas\", \"Zapata County, Texas\")) |&gt;\n  transmute(\n    County = sub(\", Texas$\", \"\", NAME),\n    Estimate = scales::percent(pov_rate, accuracy = 0.1),\n    MOE = scales::percent(pov_rate_moe, accuracy = 0.1),\n    `90% confidence interval` = paste0(\n      scales::percent(pov_ci_low, accuracy = 0.1),\n      \" to \",\n      scales::percent(pov_ci_high, accuracy = 0.1)\n    )\n  )\n\nknitr::kable(overlap_example, align = c(\"l\", \"r\", \"r\", \"r\"))\n\n\n\n\nTable 3: Example of overlapping 90% confidence intervals in the published ranking.\n\n\nCounty\nEstimate\nMOE\n90% confidence interval\n\n\n\n\nDimmit County\n41.1%\n8.9%\n32.2% to 50.0%\n\n\nZapata County\n38.4%\n6.0%\n32.4% to 44.4%\n\n\n\n\n\n\nDimmit County’s 90% confidence interval is 32.2% to 50.0%, and Zapata County’s is 32.4% to 44.4%. These intervals overlap substantially. Dimmit ranks above Zapata when I use the point estimates, but the ACS sampling uncertainty means that I cannot confidently conclude that Dimmit’s underlying poverty rate is higher. I therefore treat the table as a ranking of estimates rather than a precise ordering of the counties’ true rates."
+  },
+  {
+    "objectID": "assign3.html#methods-note",
+    "href": "assign3.html#methods-note",
+    "title": "Assignment 3: ACS via tidycensus",
+    "section": "Methods note",
+    "text": "Methods note\nFor this project, I use the 2024 ACS five-year estimates for all 254 Texas counties. I map median household income (B19013_001) and calculate poverty rates by dividing the estimated population below poverty (B17001_002) by the population for whom poverty status was determined (B17001_001). This rate is more useful for comparing counties than a count, which is strongly affected by population size. I use moe_prop() to carry the numerator and denominator margins of error into the poverty rate, and I report 90% confidence intervals. Dimmit and Zapata counties rank first and second by their point estimates, but their intervals overlap. This overlap means that the data do not clearly establish which county has the higher underlying poverty rate. I therefore interpret the table as a descriptive ranking rather than an exact ordering. Data were retrieved from the U.S. Census Bureau through tidycensus."
+  },
+  {
+    "objectID": "assign3.html#reproducibility",
+    "href": "assign3.html#reproducibility",
+    "title": "Assignment 3: ACS via tidycensus",
+    "section": "Reproducibility",
+    "text": "Reproducibility\nThe analysis retrieves the estimates and geometry from the Census API. I also save a geometry-free copy of the complete dataset as data/acs_TX_county_2024.csv. The CSV includes the original estimates and MOEs, the derived poverty rate and its propagated MOE, and the lower and upper limits of the 90% confidence interval."
   }
 ]

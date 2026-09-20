@@ -1,0 +1,232 @@
+---
+title: "Assignment 3: ACS via tidycensus"
+author: "Wenyi Wang"
+date: "2026-09-20"
+format:
+  html:
+    embed-resources: true
+    toc: true
+    code-fold: true
+    code-summary: "Show code"
+execute:
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(tidycensus)
+library(tigris)
+library(sf)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(readr)
+
+options(tigris_use_cache = TRUE)
+dir.create(".cache/tigris", recursive = TRUE, showWarnings = FALSE)
+Sys.setenv(
+  TIGRIS_CACHE_DIR = normalizePath(".cache/tigris", winslash = "/")
+)
+```
+
+## Research design
+
+For this assignment, I use the 2024 American Community Survey (ACS) five-year estimates to look at how income and poverty vary across Texas counties. I map median household income and rank counties by poverty rate. I use a rate instead of the number of people below poverty because a count would mostly reflect differences in county population size.
+
+::: {.callout-note title="Geography and variables"}
+- **Geography:** Texas counties
+- **Median household income:** `B19013_001`
+- **Population below poverty:** `B17001_002`
+- **Population for whom poverty status was determined:** `B17001_001`
+- **Survey:** 2024 ACS five-year estimates (`acs5`)
+:::
+
+The Census API key was installed once in `.Renviron`; it is not stored in this document or in the public repository.
+
+## Variable metadata and data retrieval
+
+I first check the variable codes against the 2024 ACS five-year metadata. The current `tidycensus` interface loads the metadata directly from the Census API, so I do not use the deprecated `cache` argument.
+
+```{r}
+#| label: tbl-variables
+#| tbl-cap: "ACS variables used in the analysis."
+vars <- load_variables(2024, "acs5")
+
+vars |>
+  filter(name %in% c("B19013_001", "B17001_001", "B17001_002")) |>
+  select(name, label, concept) |>
+  knitr::kable(
+    col.names = c("Variable", "Label", "Concept"),
+    align = c("l", "l", "l")
+  )
+```
+
+The next call downloads the estimates, margins of error, and county geometry in wide form. In the resulting column names, `E` identifies an estimate and `M` identifies its margin of error.
+
+```{r}
+#| label: download-acs
+#| results: hide
+state_abbr <- "TX"
+geo_level <- "county"
+year_acs <- 2024
+survey_name <- "acs5"
+
+my_vars <- c(
+  income = "B19013_001",
+  pov = "B17001_002",
+  povden = "B17001_001"
+)
+
+acs_wide <- get_acs(
+  geography = geo_level,
+  variables = my_vars,
+  state = state_abbr,
+  year = year_acs,
+  survey = survey_name,
+  geometry = TRUE,
+  output = "wide"
+)
+```
+
+## Constructing the poverty rate and uncertainty interval
+
+I calculate the poverty rate by dividing the estimated number of people below poverty by the estimated population for whom poverty status was determined. Because both values come from a sample, I carry their uncertainty into the rate with `moe_prop()`. ACS margins of error are reported at the 90% confidence level, so I construct each interval as the estimate plus or minus its MOE.
+
+```{r}
+#| label: derive-rate
+acs_wide <- acs_wide |>
+  mutate(
+    pov_rate = povE / povdenE,
+    pov_rate_moe = moe_prop(povE, povdenE, povM, povdenM),
+    pov_ci_low = pmax(0, pov_rate - pov_rate_moe),
+    pov_ci_high = pmin(1, pov_rate + pov_rate_moe)
+  )
+
+stopifnot(
+  nrow(acs_wide) == 254,
+  !anyNA(acs_wide$incomeE),
+  !anyNA(acs_wide$pov_rate),
+  all(acs_wide$povdenE > 0)
+)
+
+write_csv(
+  st_drop_geometry(acs_wide),
+  "data/acs_TX_county_2024.csv"
+)
+```
+
+## Median household income map
+
+```{r}
+#| label: fig-income-map
+#| fig-cap: "Median household income across Texas counties. Values are ACS 2024 five-year estimates."
+#| fig-width: 9
+#| fig-height: 6.8
+ggplot(acs_wide) +
+  geom_sf(aes(fill = incomeE), color = "white", linewidth = 0.08) +
+  scale_fill_viridis_c(
+    option = "C",
+    name = "Median household\nincome (2024 $)",
+    labels = scales::label_dollar(accuracy = 1, big.mark = ",")
+  ) +
+  labs(
+    title = "Median Household Income by County in Texas",
+    subtitle = "ACS 2024 five-year estimates",
+    caption = "Source: U.S. Census Bureau via tidycensus."
+  ) +
+  coord_sf(datum = NA) +
+  theme_void(base_size = 11) +
+  theme(
+    plot.title = element_text(size = 15, face = "bold"),
+    plot.subtitle = element_text(size = 10),
+    plot.caption = element_text(size = 8),
+    legend.position = "right"
+  )
+```
+
+Estimated median household income ranges from **\$36,165** to **\$127,981**. Rockwall and Collin counties are at the high end of the distribution. Swisher, Zavala, Starr, Dimmit, and Zapata counties are among those at the low end. This map shows where the estimates are higher or lower, but it does not explain what caused those differences.
+
+## Poverty-rate ranking
+
+Before ranking the counties, I remove the geometry and keep the full-precision values for all calculations. I round only the numbers displayed in the table. The poverty-rate estimate and its MOE are both reported in percentage points.
+
+```{r}
+#| label: tbl-poverty-ranking
+#| tbl-cap: "Texas counties with the highest and lowest estimated poverty rates, ACS 2024 five-year estimates. MOEs and confidence intervals use the ACS 90% confidence level."
+poverty_data <- acs_wide |>
+  st_drop_geometry() |>
+  filter(!is.na(pov_rate), !is.na(pov_rate_moe), povdenE > 0)
+
+top10 <- poverty_data |>
+  arrange(desc(pov_rate)) |>
+  slice_head(n = 10) |>
+  mutate(group = "Highest 10")
+
+bottom10 <- poverty_data |>
+  arrange(pov_rate) |>
+  slice_head(n = 10) |>
+  mutate(group = "Lowest 10")
+
+ranked_table <- bind_rows(top10, bottom10) |>
+  group_by(group) |>
+  mutate(rank = row_number()) |>
+  ungroup()
+
+table_for_display <- ranked_table |>
+  transmute(
+    Group = group,
+    Rank = rank,
+    County = sub(", Texas$", "", NAME),
+    `Poverty rate` = scales::percent(pov_rate, accuracy = 0.1),
+    `MOE` = scales::percent(pov_rate_moe, accuracy = 0.1),
+    `90% confidence interval` = paste0(
+      scales::percent(pov_ci_low, accuracy = 0.1),
+      " to ",
+      scales::percent(pov_ci_high, accuracy = 0.1)
+    )
+  )
+
+knitr::kable(
+  table_for_display,
+  col.names = c(
+    "Group", "Rank", "County", "Poverty rate",
+    "MOE", "90% confidence interval"
+  ),
+  align = c("l", "r", "l", "r", "r", "r")
+)
+```
+
+Dimmit County (41.1%) and Zapata County (38.4%) have the two highest point estimates, while Rockwall County (4.0%) and Sterling County (4.3%) have the two lowest. Several of the smaller counties also have wide MOEs, which suggests that the exact ordering is less certain than the point estimates alone make it appear.
+
+## Uncertainty check
+
+```{r}
+#| label: tbl-overlap-check
+#| tbl-cap: "Example of overlapping 90% confidence intervals in the published ranking."
+overlap_example <- ranked_table |>
+  filter(NAME %in% c("Dimmit County, Texas", "Zapata County, Texas")) |>
+  transmute(
+    County = sub(", Texas$", "", NAME),
+    Estimate = scales::percent(pov_rate, accuracy = 0.1),
+    MOE = scales::percent(pov_rate_moe, accuracy = 0.1),
+    `90% confidence interval` = paste0(
+      scales::percent(pov_ci_low, accuracy = 0.1),
+      " to ",
+      scales::percent(pov_ci_high, accuracy = 0.1)
+    )
+  )
+
+knitr::kable(overlap_example, align = c("l", "r", "r", "r"))
+```
+
+Dimmit County's 90% confidence interval is **32.2% to 50.0%**, and Zapata County's is **32.4% to 44.4%**. These intervals overlap substantially. Dimmit ranks above Zapata when I use the point estimates, but the ACS sampling uncertainty means that I cannot confidently conclude that Dimmit's underlying poverty rate is higher. I therefore treat the table as a ranking of estimates rather than a precise ordering of the counties' true rates.
+
+## Methods note
+
+For this project, I use the 2024 ACS five-year estimates for all 254 Texas counties. I map median household income (`B19013_001`) and calculate poverty rates by dividing the estimated population below poverty (`B17001_002`) by the population for whom poverty status was determined (`B17001_001`). This rate is more useful for comparing counties than a count, which is strongly affected by population size. I use `moe_prop()` to carry the numerator and denominator margins of error into the poverty rate, and I report 90% confidence intervals. Dimmit and Zapata counties rank first and second by their point estimates, but their intervals overlap. This overlap means that the data do not clearly establish which county has the higher underlying poverty rate. I therefore interpret the table as a descriptive ranking rather than an exact ordering. Data were retrieved from the U.S. Census Bureau through `tidycensus`.
+
+## Reproducibility
+
+The analysis retrieves the estimates and geometry from the Census API. I also save a geometry-free copy of the complete dataset as [`data/acs_TX_county_2024.csv`](data/acs_TX_county_2024.csv). The CSV includes the original estimates and MOEs, the derived poverty rate and its propagated MOE, and the lower and upper limits of the 90% confidence interval.

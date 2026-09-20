@@ -24,6 +24,8 @@ website:
             href: assign1.qmd
           - text: "Assignment 2"
             href: assign2.qmd
+          - text: "Assignment 3"
+            href: assign3.qmd
     right:
       - icon: github
         href: https://github.com/WenyiWangUTD
