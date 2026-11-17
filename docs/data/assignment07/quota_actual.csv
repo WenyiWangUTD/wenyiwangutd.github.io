@@ -1,0 +1,4 @@
+bucket,quota_used,quota_limit,quota_remaining,reset_time,requests_last_minute
+data,314,10000,9686,2026-11-17 02:00:00 CST,0
+search,8,100,92,2026-11-17 02:00:00 CST,0
+video_uploads,0,100,100,2026-11-17 02:00:00 CST,0

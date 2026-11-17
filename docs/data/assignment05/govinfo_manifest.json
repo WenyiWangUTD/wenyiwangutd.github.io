@@ -1,0 +1,12 @@
+{
+  "source": "GovInfo API",
+  "collected_at": "2026-11-16 19:31:23 UTC",
+  "credential": "public DEMO_KEY",
+  "query": "collection:(CHRG) AND \"Committee on Foreign Relations\"",
+  "sort": "publishdate descending",
+  "requested": 10,
+  "returned": 10,
+  "total_reported": 1225,
+  "documents_published": false,
+  "document_location": ".cache/assignment05/govinfo_docs (gitignored)"
+}

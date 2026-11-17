@@ -1,0 +1,335 @@
+---
+title: "Assignment 7: YouTube API and the 2026 US Midterm Election"
+author: "Wenyi Wang"
+date: "2026-11-16"
+format:
+  html:
+    embed-resources: true
+    toc: false
+    code-fold: true
+    code-summary: "Show code"
+execute:
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(dplyr)
+library(ggplot2)
+library(jsonlite)
+library(knitr)
+library(readr)
+library(scales)
+
+data_dir <- "data/assignment07"
+ready <- file.exists(file.path(data_dir, "collection_summary.csv"))
+quota_plan <- read_csv(
+  file.path(data_dir, "quota_plan.csv"),
+  show_col_types = FALSE
+)
+if (ready) {
+  collection <- read_csv(
+    file.path(data_dir, "collection_summary.csv"),
+    show_col_types = FALSE
+  )
+  search_summary <- read_csv(
+    file.path(data_dir, "search_summary.csv"),
+    show_col_types = FALSE
+  )
+  overlap <- read_csv(
+    file.path(data_dir, "search_overlap.csv"),
+    show_col_types = FALSE
+  )
+  channel_route <- read_csv(
+    file.path(data_dir, "channel_route_summary.csv"),
+    show_col_types = FALSE
+  )
+  channel_comparison <- read_csv(
+    file.path(data_dir, "channel_route_comparison.csv"),
+    show_col_types = FALSE
+  )
+  quota_actual <- read_csv(
+    file.path(data_dir, "quota_actual.csv"),
+    show_col_types = FALSE
+  )
+  collection_log <- read_csv(
+    file.path(data_dir, "collection_log.csv"),
+    show_col_types = FALSE
+  )
+  channel_keyness <- read_csv(
+    file.path(data_dir, "channel_keyness.csv"),
+    show_col_types = FALSE
+  )
+  period_keyness <- read_csv(
+    file.path(data_dir, "period_keyness.csv"),
+    show_col_types = FALSE
+  )
+  sentiment <- read_csv(
+    file.path(data_dir, "sentiment_summary.csv"),
+    show_col_types = FALSE
+  )
+  validation_ready <- file.exists(
+    file.path(data_dir, "sentiment_validation_summary.csv")
+  )
+  if (validation_ready) {
+    validation_summary <- read_csv(
+      file.path(data_dir, "sentiment_validation_summary.csv"),
+      show_col_types = FALSE
+    )
+    validation_confusion <- read_csv(
+      file.path(data_dir, "sentiment_validation_confusion.csv"),
+      show_col_types = FALSE
+    )
+  }
+}
+```
+
+::: {.callout-note title="Collection rule"}
+The exact search term is `US midterm election`. I searched the pre-election window (1 September through 27 October 2026) and the post-election window (4 November through the collection date) twice, ordered by relevance and by view count. Raw comments and author names stay in a gitignored folder and must be deleted or refreshed within 30 days.
+:::
+
+```{r}
+#| label: collection-status
+#| results: asis
+if (!ready) {
+  cat("::: {.callout-warning}\n")
+  cat("The YouTube collection has not been run. Install the required development version of `tuber`, place `YOUTUBE_KEY` in `~/.Renviron`, restart R, and run `Rscript code/assignment07_collect.R`. No key is written to the project.\n")
+  cat(":::\n")
+} else {
+  cat(
+    "The final corpus contains **", comma(collection$comments),
+    " comments** from **", collection$videos,
+    " videos** across **", collection$channels, " channels**.\n",
+    sep = ""
+  )
+}
+```
+
+## Quota plan
+
+I wrote the quota plan before the first API request. Search calls are the scarce resource: four two-page searches use eight of the daily search calls, while playlist, statistics, and comment pages use the separate unit budget.
+
+```{r}
+#| label: quota-plan
+#| echo: false
+#| tbl-cap: "Planned API requests before collection."
+quota_plan |>
+  kable(
+    col.names = c(
+      "Operation", "Calls/pages", "Cost each",
+      "Planned units", "Search calls"
+    )
+  )
+```
+
+```{r}
+#| label: quota-actual
+#| echo: false
+#| tbl-cap: "Quota recorded by tuber after the final uncached collection run."
+if (ready) {
+  quota_actual |>
+    select(bucket, quota_used, quota_limit, quota_remaining) |>
+    kable(col.names = c("Bucket", "Used", "Limit", "Remaining"))
+}
+```
+
+The final run used **`r if (ready) quota_actual$quota_used[quota_actual$bucket == "search"] else 0` search calls** and **`r if (ready) quota_actual$quota_used[quota_actual$bucket == "data"] else 0` data units**. This is below the conservative plan because the upload, statistics, and comment requests used fewer pages than their upper bounds.
+
+## Search ranking and channel route
+
+```{r}
+#| label: search-summary
+#| echo: false
+if (ready) {
+  search_summary |>
+    kable(
+      col.names = c(
+        "Search", "Period", "Order", "Returned", "Total reported",
+        "Duplicate IDs", "Unique IDs"
+      )
+    )
+}
+```
+
+```{r}
+#| label: search-overlap
+#| echo: false
+if (ready) {
+  overlap |>
+    kable(col.names = c("Period", "Videos in both rankings"))
+}
+```
+
+The API's `total_results` is a claim about the result universe, whereas the returned rows are a capped ranking. Relevance and view-count orderings answer different platform questions and need not contain the same videos. I removed repeated `video_id` values before joining statistics so that a duplicate search result could not copy its comments.
+
+I also followed three publishers through their upload playlists: NBC News (national network), CNN (cable news), and BBC News (international broadcaster). This route costs one unit per 50 uploads and avoids spending search calls, but it is newest-first and still depends on a written title filter. Reviewing 20 kept and 20 dropped titles exposed a problem with the original generic word `election`: it retained Israeli and Serbian election coverage. I therefore revised the rule to `midterm|senate race|house race|election day|ballot`. It is more precise for this assignment but can still miss US campaign coverage with an unusual title.
+
+```{r}
+#| label: channel-route
+#| echo: false
+if (ready) {
+  channel_route |>
+    select(
+      channel_title, channel_kind, pages_used,
+      earliest_date, reached_september, kept, total
+    ) |>
+    kable(
+      col.names = c(
+        "Channel", "Type", "Playlist pages", "Earliest date",
+        "Reached Sept. 1", "Titles kept", "Uploads checked"
+      )
+    )
+}
+```
+
+```{r}
+#| label: channel-versus-search
+#| echo: false
+#| tbl-cap: "Eligible channel-upload videos also found, or missed, by the two general searches."
+if (ready) {
+  channel_comparison |>
+    kable(
+      col.names = c(
+        "Channel", "Period", "Eligible uploads",
+        "Also in search", "Missed by search"
+      )
+    )
+}
+```
+
+## What the collected comments represent
+
+```{r}
+#| label: collection-diagnostics
+#| echo: false
+if (ready) {
+  collection_log |>
+    count(status, name = "videos") |>
+    kable(col.names = c("Status", "Videos"))
+}
+```
+
+```{r}
+#| label: comments-received
+#| echo: false
+if (ready) {
+  collection_log |>
+    select(channel_title, period, reported, received, difference, status) |>
+    kable(
+      col.names = c(
+        "Channel", "Period", "Comments reported", "Received",
+        "Difference", "Status"
+      )
+    )
+}
+```
+
+A reported comment count can exceed the number received because of the 300-comment cap, moderation, deletion, held-for-review comments, replies, and timing. A comment section is not a voter sample. A person must encounter a selected video, choose to watch, have an account, decide to comment, survive channel and platform moderation, and appear under the API's ordering at the time of collection. Highly active authors and repeated text can further concentrate the corpus.
+
+```{r}
+#| label: concentration
+#| echo: false
+if (ready) {
+  tibble(
+    Measure = c(
+      "Reply share",
+      "Share of likes on top 1% of comments",
+      "Share of comments by top 10% of authors",
+      "Exact duplicate texts"
+    ),
+    Value = c(
+      percent(collection$reply_share, accuracy = 0.1),
+      percent(collection$top_one_percent_like_share, accuracy = 0.1),
+      percent(collection$top_ten_percent_author_share, accuracy = 0.1),
+      comma(collection$exact_duplicate_texts)
+    )
+  ) |>
+    kable()
+}
+```
+
+## Text analysis
+
+I used one comment as one document, with channel, video, reply status, likes, date, and pre/post period as document variables. URLs and symbols were removed; emoji therefore do not enter the bag-of-words model, and mentions remain ordinary tokens only when the tokenizer preserves them. Before modeling I read KWIC samples for `democrat*`, `republican*`, `trump`, `vote*`, and `ballot*`. I compounded the required phrases plus `voter turnout` and `swing state`, which appeared as useful election-process concepts.
+
+```{r}
+#| label: fig-channel-keyness
+#| fig-cap: "Most distinctive comment features for each publishing channel."
+#| fig-width: 9
+#| fig-height: 6
+if (ready) {
+  channel_keyness |>
+    group_by(target_channel) |>
+    slice_max(abs(chi2), n = 10) |>
+    ungroup() |>
+    mutate(feature = reorder(feature, chi2)) |>
+    ggplot(aes(chi2, feature, fill = chi2 > 0)) +
+    geom_col(show.legend = FALSE) +
+    facet_wrap(~target_channel, scales = "free_y") +
+    scale_fill_manual(values = c("#D1495B", "#2A9D8F")) +
+    labs(x = "Keyness statistic", y = NULL) +
+    theme_minimal(base_size = 10)
+}
+```
+
+Keyness identifies vocabulary distinctive to comments under a channel, but the difference can concern the videos, the audience they attracted, or the platform's ranking and moderation. The pre/post comparison has the same limitation: after Election Day, both the political event and the mix of available videos changed.
+
+```{r}
+#| label: fig-sentiment
+#| fig-cap: "Dictionary sentiment by channel and election period."
+#| fig-width: 8
+#| fig-height: 4.8
+if (ready) {
+  ggplot(
+    sentiment,
+    aes(channel_title, mean_sentiment, fill = period)
+  ) +
+    geom_col(position = "dodge") +
+    geom_hline(yintercept = 0, color = "grey45") +
+    scale_fill_manual(values = c(before = "#457B9D", after = "#E76F51")) +
+    labs(x = NULL, y = "Mean dictionary score", fill = NULL) +
+    theme_minimal(base_size = 11)
+}
+```
+
+The LSD2015 dictionary is a measurement rule, not a reader. Sarcasm, quoted claims, and election words such as “landslide,” “rigged,” or “fraud” can reverse or obscure tone. The workflow therefore creates a private 40-comment validation template.
+
+```{r}
+#| label: validation-status
+#| results: asis
+if (ready && validation_ready) {
+  cat(
+    "Manual agreement with the dictionary was **",
+    percent(validation_summary$agreement, accuracy = 0.1),
+    "** across **", validation_summary$sample_size,
+    " comments**.\n",
+    sep = ""
+  )
+} else if (ready) {
+  cat("::: {.callout-warning}\n")
+  cat("The 40-comment manual validation file is ready, but `human_label` still needs to be completed as `positive`, `negative`, or `neither`. The report does not claim validation agreement until those labels are entered.\n")
+  cat(":::\n")
+}
+```
+
+```{r}
+#| label: validation-confusion
+#| echo: false
+#| tbl-cap: "Human labels compared with LSD2015 dictionary labels."
+if (ready && validation_ready) {
+  validation_confusion |>
+    kable(
+      col.names = c("Human label", "Dictionary label", "Comments")
+    )
+}
+```
+
+## Comparison with Assignment 6 and data note
+
+The 2021 summit tweets were produced by users but entered the corpus through an archived keyword window that cannot now be recreated. Presidential documents were produced by government offices for an official public record and can support claims about official rhetoric. These YouTube comments were produced by a self-selected audience under videos chosen by publishers and ranked by YouTube. They support claims about the comments the API returned, not voters or the general public.
+
+The before/after manifests record source, permission, exact search term, windows, ranking, channels, title filter, caps, known gaps, and deletion date. Published files include logs and aggregates only; raw comments, commenter names, the manual validation sample, and the key remain private. The complete workflow is in [`code/assignment07_collect.R`](code/assignment07_collect.R).
+
+*AI-use disclosure:* I used an AI coding assistant to help structure the reproducible workflow and checked the API plan, code, outputs, and interpretations before submission.

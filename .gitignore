@@ -17,5 +17,10 @@
 
 # Large or private data
 data-raw/
+.cache/assignment05/govinfo_docs/
+.cache/assignment06/
+data/youtube/private/
+docs/data/youtube/private/
+data/youtube/comments.*
 *.sav
 *.dta

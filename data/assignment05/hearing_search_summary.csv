@@ -1,0 +1,2 @@
+collected_at,query,sort,total_reported,returned
+2026-11-16 19:25:00 UTC,"collection:(CHRG) AND ""Committee on Foreign Relations""",publishdate descending,1225,10

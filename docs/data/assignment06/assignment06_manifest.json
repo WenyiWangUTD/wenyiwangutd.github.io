@@ -1,0 +1,24 @@
+{
+  "summit": {
+    "source": "https://raw.githubusercontent.com/datageneration/datamethods/master/textanalytics/summit_11162021.csv",
+    "selection": "Course archive of tweets collected during the 16 November 2021 summit",
+    "documents": 14520,
+    "recollectable": false
+  },
+  "cpd": {
+    "source": "GovInfo Compilation of Presidential Documents",
+    "query": "collection:(CPD) AND \"Xi Jinping\" AND publishdate:range(2021-01-20,2026-12-31)",
+    "credential": "GOVINFO_API_KEY environment variable",
+    "collected": true,
+    "documents": 353,
+    "raw_documents_published": false
+  },
+  "inaugural": {
+    "source": "quanteda data_corpus_inaugural",
+    "selection": "Addresses from 1945 onward",
+    "first_year": 1945,
+    "last_year": 2025,
+    "documents": 21
+  },
+  "generated_at": "2026-11-16 20:46:15 UTC"
+}

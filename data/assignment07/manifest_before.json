@@ -1,0 +1,37 @@
+{
+  "source": "YouTube Data API v3 via tuber",
+  "permission": "API key; quota plan; non-authorized comments retained no more than 30 days under Developer Policies III.E.4",
+  "collected_at": "2026-11-17 00:32:58 UTC",
+  "search": {
+    "term": "US midterm election",
+    "orders": ["relevance", "viewCount"],
+    "published_after": "2026-09-01T00:00:00Z",
+    "published_before": "2026-10-28T00:00:00Z"
+  },
+  "channels": [
+    {
+      "channel_id": "UCeY0bbntWzzVIaj2z3QigXg",
+      "channel_title": "NBC News",
+      "channel_kind": "national network"
+    },
+    {
+      "channel_id": "UCupvZG-5ko_eiXAupbDfxWw",
+      "channel_title": "CNN",
+      "channel_kind": "cable news"
+    },
+    {
+      "channel_id": "UC16niRr50-MSBwiO3YDb3RA",
+      "channel_title": "BBC News",
+      "channel_kind": "international broadcaster"
+    }
+  ],
+  "title_filter": "midterm|senate race|house race|election day|ballot",
+  "selection": "Three highest-comment-count eligible videos per channel and period",
+  "comment_cap_per_video": 300,
+  "videos": 9,
+  "comments": 2393,
+  "known_gaps": "Search ranking, title filter, disabled or moderated comments, deleted comments, replies beyond the cap, and collection timing",
+  "delete_by": "2026-12-16",
+  "raw_comments_published": false,
+  "key_recorded": false
+}

@@ -1,0 +1,25 @@
+video_id,status,received,api_calls,message,channel_title,period,reported,difference,collected_at
+rVYnYzeY-9A,ok,300,4,NA,BBC News,after,609,309,2026-11-17 00:32:53 UTC
+n_GPIGuL5lk,ok,300,5,NA,BBC News,after,534,234,2026-11-17 00:32:53 UTC
+xbgtOgYVGJM,ok,300,9,NA,BBC News,after,352,52,2026-11-17 00:32:53 UTC
+HGRNZwbzktQ,error,0,NA,"Unable to retrieve comments for this video.
+Caused by error in `tuber_check()`:
+! HTTP failure: 400
+The API server failed to successfully process the request. While this can be a transient error, it usually indicates that the request's input is invalid. Check the structure of the <code>commentThread</code> resource in the request body to ensure that it is valid.",BBC News,before,2485,2485,2026-11-17 00:32:53 UTC
+ex2K7qcOiok,ok,300,3,NA,BBC News,before,792,492,2026-11-17 00:32:53 UTC
+KpJaaPAyMhc,ok,293,3,NA,BBC News,before,293,0,2026-11-17 00:32:53 UTC
+AerLH3llCco,error,0,NA,"Unable to retrieve comments for this video.
+Caused by error in `tuber_check()`:
+! HTTP failure: 400
+The API server failed to successfully process the request. While this can be a transient error, it usually indicates that the request's input is invalid. Check the structure of the <code>commentThread</code> resource in the request body to ensure that it is valid.",CNN,after,15277,15277,2026-11-17 00:32:53 UTC
+8ndxlUvsQ8U,ok,300,4,NA,CNN,after,8177,7877,2026-11-17 00:32:53 UTC
+FYEdPumD6D4,ok,300,4,NA,CNN,after,4169,3869,2026-11-17 00:32:53 UTC
+mcGbI_ommUw,ok,300,3,NA,CNN,before,12022,11722,2026-11-17 00:32:53 UTC
+yy5blvw2IF4,ok,300,3,NA,CNN,before,11855,11555,2026-11-17 00:32:53 UTC
+yZIIkGsOcLw,ok,300,4,NA,CNN,before,6996,6696,2026-11-17 00:32:53 UTC
+rxGlzCGz-lY,ok,300,3,NA,NBC News,after,940,640,2026-11-17 00:32:53 UTC
+hY2pr51lw4M,ok,300,3,NA,NBC News,after,921,621,2026-11-17 00:32:53 UTC
+yPsRCMef2Kg,ok,300,5,NA,NBC News,after,902,602,2026-11-17 00:32:53 UTC
+aSG0tp_iuqU,ok,300,3,NA,NBC News,before,1948,1648,2026-11-17 00:32:53 UTC
+hGlJi746ll0,ok,300,4,NA,NBC News,before,658,358,2026-11-17 00:32:53 UTC
+SawrHFovoPI,ok,300,3,NA,NBC News,before,542,242,2026-11-17 00:32:53 UTC

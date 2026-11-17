@@ -1,0 +1,20 @@
+{
+  "source": "Simulated TRS and TEA records from record_linkage_workshop.R",
+  "seed": 42,
+  "records_per_file": 500,
+  "true_matches": 100,
+  "corruption_rates": [0.1, 0.2, 0.4],
+  "deterministic_rules": ["full standardized name and DOB", "standardized last name, first initial, and DOB", "full standardized name and DOB within one day"],
+  "blocking": "first letter of standardized last name",
+  "weights": {
+    "last_name": 0.1747,
+    "first_name": 0.1875,
+    "dob": 0.6379
+  },
+  "threshold": 0.97,
+  "review_band": [0.87, 0.97],
+  "selection": "one-to-one greedy selection in descending score order",
+  "raw_records_published": false,
+  "known_gaps": "Simulation has a complete answer key, limited name diversity, one corruption per affected match, and no missing fields or group-specific error process. Real administrative files need clerical review and independent validation.",
+  "generated_at": "2026-11-16 20:45:17 UTC"
+}

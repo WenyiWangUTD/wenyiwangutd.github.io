@@ -26,6 +26,16 @@ website:
             href: assign2.qmd
           - text: "Assignment 3"
             href: assign3.qmd
+          - text: "Assignment 4"
+            href: assign04.qmd
+          - text: "Assignment 5"
+            href: assign05.qmd
+          - text: "Assignment 6"
+            href: assign06.qmd
+          - text: "Assignment 7"
+            href: assign07.qmd
+          - text: "Assignment 8"
+            href: assign_linkage.qmd
     right:
       - icon: github
         href: https://github.com/WenyiWangUTD

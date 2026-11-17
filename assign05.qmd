@@ -1,0 +1,104 @@
+---
+title: "Assignment 5: Government Data API"
+author: "Wenyi Wang"
+date: "2026-11-16"
+format:
+  html:
+    embed-resources: true
+    toc: false
+    code-fold: true
+    code-summary: "Show code"
+execute:
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(dplyr)
+library(jsonlite)
+library(knitr)
+library(readr)
+
+hearings <- read_csv(
+  "data/assignment05/hearing_api_metadata.csv",
+  show_col_types = FALSE
+)
+download_log <- read_csv(
+  "data/assignment05/hearing_download_log.csv",
+  show_col_types = FALSE
+)
+route_comparison <- read_csv(
+  "data/assignment05/hearing_route_comparison.csv",
+  show_col_types = FALSE
+)
+manifest <- read_json("data/assignment05/govinfo_manifest.json")
+```
+
+::: {.callout-note title="Credential and query record"}
+The API key is read from `GOVINFO_API_KEY` and is never written to a file. This cached run used GovInfo's shared `DEMO_KEY`; after adding a personal key to `.Renviron`, setting `REFRESH_GOVINFO=true` reruns the search. The exact query was `collection:(CHRG) AND "Committee on Foreign Relations"`, sorted by publication date from newest to oldest.
+:::
+
+## Search and collection
+
+I first ran the query in the [GovInfo search page](https://www.govinfo.gov/app/search/) and preserved the returned package identifiers. The search reported **`r format(manifest$total_reported, big.mark = ",")` records** because it is a full-text query, not a committee-field filter. One of the first ten results was a Commerce Committee hearing whose transcript happened to contain the phrase; I removed that false match after checking the displayed committee and took the next Foreign Relations hearing.
+
+```{r}
+#| label: govinfo-search
+#| eval: false
+library(httr2)
+
+body <- list(
+  query = 'collection:(CHRG) AND "Committee on Foreign Relations"',
+  pageSize = 10,
+  offsetMark = "*",
+  sorts = list(list(field = "publishdate", sortOrder = "DESC"))
+)
+
+found <- request("https://api.govinfo.gov/search") |>
+  req_url_query(api_key = Sys.getenv("GOVINFO_API_KEY")) |>
+  req_body_json(body) |>
+  req_perform() |>
+  resp_body_json()
+```
+
+```{r}
+#| label: hearing-table
+#| echo: false
+#| tbl-cap: "Ten most recent verified Senate Foreign Relations Committee hearings in the collection."
+hearings |>
+  transmute(
+    Date = date_issued,
+    Title = title,
+    `Package ID` = package_id
+  ) |>
+  kable(align = c("l", "l", "l"))
+```
+
+The oldest hearing in this ten-document set was issued on **`r min(hearings$date_issued)`**, and the newest on **`r max(hearings$date_issued)`**. Package IDs are stable join keys, while the title and date can be inspected before opening a document.
+
+## Two download routes
+
+The first route used the package IDs preserved from the search export. The second constructed each package's official content URL from the metadata returned by the API. Both routes produced ten successful downloads, and the package-ID comparison matched all ten documents.
+
+```{r}
+#| label: download-summary
+#| echo: false
+#| tbl-cap: "Download status by route. PDFs are retained only in the gitignored cache."
+download_log |>
+  count(route, status, name = "files") |>
+  kable(col.names = c("Route", "Status", "Files"))
+```
+
+The documents are stored under `.cache/assignment05/govinfo_docs/`, not in the public site. The published [download log](data/assignment05/hearing_download_log.csv), [manifest](data/assignment05/govinfo_manifest.json), and [route comparison](data/assignment05/hearing_route_comparison.csv) contain no API key.
+
+## Usability as data
+
+The PDFs are readable records but awkward data. They mix front matter, committee rosters, prepared statements, testimony, question-and-answer exchanges, appendices, and page furniture. A ten-document corpus would require text extraction or OCR, removal of repeated headers and page numbers, speaker segmentation, document-level metadata, and checks against the visible PDF. Tables and scanned exhibits would need separate treatment, and a failed text layer could silently turn a long hearing into an almost empty document.
+
+The process improves immediately by using the alternative formats already named in each API result. HTML or text is easier to tokenize than PDF, MODS supplies structured bibliographic metadata, and the summary endpoint identifies committee, witnesses, dates, and stable package IDs without opening the file. I would cache the raw response, preserve the package ID as the primary key, prefer HTML for the corpus, and use the PDF only to verify layout-dependent material.
+
+The API gave me stable identifiers, structured metadata, explicit download links, and a paging token that can be recorded and rerun. The search page was useful for discovery and last week's scraper copied a changing table, but neither exposed the same machine-readable contract for retrieving and joining documents.
+
+The complete workflow is in [`code/assignment05_collect.R`](code/assignment05_collect.R). It validates row counts, caches successful results, logs every download, and keeps the documents outside the published repository.

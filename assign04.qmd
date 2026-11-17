@@ -1,0 +1,223 @@
+---
+title: "Assignment 4: Web Scraping and Data Acquisition"
+author: "Wenyi Wang"
+date: "2026-11-16"
+format:
+  html:
+    embed-resources: true
+    toc: false
+    code-fold: true
+    code-summary: "Show code"
+execute:
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(dplyr)
+library(ggplot2)
+library(knitr)
+library(readr)
+library(rvest)
+library(stringr)
+library(tidyr)
+
+books <- read_csv(
+  "data/assignment04/books_first_five_pages.csv",
+  show_col_types = FALSE
+)
+reserves <- read_csv(
+  "data/assignment04/wikipedia_reserves_clean.csv",
+  show_col_types = FALSE
+)
+population <- read_csv(
+  "data/assignment04/wikipedia_population_clean.csv",
+  show_col_types = FALSE
+)
+comparison <- read_csv(
+  "data/assignment04/reserves_source_comparison.csv",
+  show_col_types = FALSE
+)
+permission_log <- read_csv(
+  "data/assignment04/robots_permission_log.csv",
+  show_col_types = FALSE
+)
+```
+
+::: {.callout-note title="Permission and collection record"}
+Before making a content request, I checked each intended path with `robotstxt::paths_allowed()`. The sandbox, the [Wikipedia reserves page](https://en.wikipedia.org/wiki/List_of_countries_by_foreign-exchange_reserves), and the second [Wikipedia population page](https://en.wikipedia.org/wiki/List_of_countries_and_dependencies_by_population) all returned `TRUE`. The check and its timestamp are preserved in the [permission log](data/assignment04/robots_permission_log.csv).
+:::
+
+## Warm-up: Books to Scrape
+
+I first used [Books to Scrape](https://books.toscrape.com), a sandbox intended for scraping practice. Each page has 20 `article.product_pod` cards. I extracted the title attribute, the displayed price, and the rating class, paused between requests, and bound pages 1--5 into one dataframe.
+
+```{r}
+#| label: books-collection
+#| eval: false
+library(dplyr)
+library(purrr)
+library(readr)
+library(rvest)
+library(stringr)
+library(tibble)
+
+rating_levels <- c(One = 1L, Two = 2L, Three = 3L, Four = 4L, Five = 5L)
+
+scrape_books_page <- function(page_number) {
+  Sys.sleep(0.5)
+  cards <- read_html(sprintf(
+    "https://books.toscrape.com/catalogue/page-%s.html", page_number
+  )) |>
+    html_elements("article.product_pod")
+
+  tibble(
+    page = page_number,
+    title = cards |> html_element("h3 a") |> html_attr("title"),
+    price_gbp = cards |>
+      html_element("p.price_color") |>
+      html_text2() |>
+      parse_number(),
+    rating_word = cards |>
+      html_element("p.star-rating") |>
+      html_attr("class") |>
+      str_remove("^star-rating\\s+")
+  ) |>
+    mutate(rating = unname(rating_levels[rating_word]))
+}
+
+books <- map_dfr(1:5, scrape_books_page)
+stopifnot(nrow(books) == 100L, !anyDuplicated(books$title))
+```
+
+The result contains **`r nrow(books)` books** and exactly **`r paste(count(books, page)$n, collapse = ", ")` observations per page**. Prices range from **£`r sprintf("%.2f", min(books$price_gbp))` to £`r sprintf("%.2f", max(books$price_gbp))`**. The five-star category is most common in these pages, but this is only the first tenth of the site's catalog.
+
+```{r}
+#| label: books-preview
+#| echo: false
+#| tbl-cap: "First six records from the five-page books dataframe."
+books |>
+  select(page, title, price_gbp, rating) |>
+  slice_head(n = 6) |>
+  kable(digits = 2)
+```
+
+## Wikipedia reserve table
+
+`html_table()` returned eight columns, but four had the same displayed heading, “Foreign exchange reserves,” and the first two body rows repeated the multi-row header. I therefore renamed by position, removed those two rows, stripped footnote markers and Unicode spaces, parsed numeric fields, and converted the report date with `lubridate::dmy()`. I also removed any `Total` or `World` record, although neither appeared in this version. The cleaned file has **`r nrow(reserves)` countries**. Wikipedia contains one impossible date, `31 Apr 2024` for Albania; I kept it as missing instead of silently inventing a date.
+
+```{r}
+#| label: reserves-cleaning
+#| eval: false
+reserves_raw <- read_html(reserves_url) |>
+  html_elements("table.wikitable") |>
+  purrr::pluck(1) |>
+  html_table(fill = TRUE)
+
+names(reserves_raw) <- c(
+  "country", "continent", "reserves_with_gold_usd_millions",
+  "change_with_gold_usd_millions", "reserves_without_gold_usd_millions",
+  "change_without_gold_usd_millions", "last_reported_date", "reference"
+)
+
+reserves <- reserves_raw |>
+  slice(-(1:2)) |>
+  mutate(across(everything(), clean_text)) |>
+  mutate(
+    country = str_remove_all(country, "\\[[^]]+\\]") |> str_squish(),
+    across(ends_with("usd_millions"), parse_reserve),
+    last_reported_date = suppressWarnings(lubridate::dmy(last_reported_date))
+  ) |>
+  filter(!country %in% c("", "Total", "World")) |>
+  select(-reference)
+```
+
+I next changed the target to the Wikipedia population table. The reserve cleaner failed immediately because it asserted eight columns and deleted two supposed header rows; the population table has six columns and begins with data. Its fields also require different operations: `% of world` contains percent signs, the first record is `World`, and citations occur in the source and notes columns. This is exactly the silent-fragility problem when a scraper assumes layout rather than meaning. After a target-specific cleaner, the second dataframe has **`r nrow(population)` locations** after removing `World`.
+
+```{r}
+#| label: population-cleaning
+#| eval: false
+population_raw <- read_html(population_url) |>
+  html_element("table.wikitable") |>
+  html_table(fill = TRUE)
+
+population <- population_raw |>
+  rename(
+    location = 1, population = 2, world_share = 3,
+    estimate_date = 4, source = 5, notes = 6
+  ) |>
+  mutate(across(everything(), clean_text)) |>
+  mutate(
+    location = str_remove_all(location, "\\[[^]]+\\]") |>
+      str_squish(),
+    population = parse_number(population),
+    world_share_pct = parse_number(world_share),
+    estimate_date = suppressWarnings(lubridate::dmy(estimate_date))
+  ) |>
+  filter(location != "World") |>
+  select(
+    location, population, world_share_pct,
+    estimate_date, source, notes
+  )
+```
+
+## API comparison
+
+I fetched World Bank indicator `FI.RES.TOTL.CD`, “Total reserves (includes gold, current US$),” for all countries and 2023--2026 in one `WDI()` call. I removed aggregates, selected each country's latest nonmissing annual value, converted dollars to millions, and joined by ISO3 code.
+
+```{r}
+#| label: wdi-call
+#| eval: false
+wdi_raw <- WDI::WDI(
+  country = "all", indicator = "FI.RES.TOTL.CD",
+  start = 2023, end = 2026, extra = TRUE
+)
+
+wdi_latest <- wdi_raw |>
+  filter(region != "Aggregates", !is.na(FI.RES.TOTL.CD)) |>
+  group_by(iso3c) |>
+  slice_max(year, n = 1, with_ties = FALSE) |>
+  ungroup()
+```
+
+The join produced **`r nrow(comparison)` countries**, but only **`r sum(comparison$same_vintage, na.rm = TRUE)`** have the same stated year. The Wikipedia dates range from March 2024 to November 2026, while the latest World Bank observations are annual 2023--2025 values. The largest absolute gaps include the United States, Germany, France, Italy, and Russia.
+
+```{r}
+#| label: comparison-table
+#| echo: false
+#| tbl-cap: "Largest absolute differences between Wikipedia and the latest World Bank value (US$ millions)."
+comparison |>
+  select(
+    country, wiki_year, wb_year,
+    wiki_usd_millions = reserves_with_gold_usd_millions,
+    wb_usd_millions = wb_reserves_usd_millions,
+    difference_usd_millions, percent_difference
+  ) |>
+  slice_head(n = 10) |>
+  mutate(
+    wiki_year = as.character(wiki_year),
+    wb_year = as.character(wb_year),
+    across(where(is.numeric), ~ round(.x, 1))
+  ) |>
+  kable(format.args = list(big.mark = ","))
+```
+
+Vintage explains part of the disagreement, but not all of it: even same-year records can differ sharply. Wikipedia combines volunteer-edited figures from many national sources and uses irregular observation dates; the World Bank indicator is a harmonized annual series with its own coverage and valuation conventions. Country naming and revisions add further differences, and extreme examples such as North Macedonia show why the scraped table should not be treated as an authoritative statistical series. The relevant comparison is therefore source provenance and definition, not merely whether two formatted numbers look close.
+
+Scraping is appropriate when the needed public information has no usable API, bulk download, or structured file and the site's rules permit automated access. When an official API supplies the same quantity with stable identifiers and metadata, I would use the API and reserve scraping for validation or fields the API omits.
+
+## Data plan: gambling availability and local harm
+
+My research examines how gambling availability and vice-market regulation shape crime and behavioral harm. I would build a county-by-month record of licensed gambling venues, openings, closings, operator changes, and enforcement actions. The primary sources would be state gaming commission license registries and disciplinary-order pages because they are the legal record of market access. Commercial directories are easier to search but can be stale, omit closures, or mix licensed and unlicensed businesses. I would cross-check addresses and business names against state business registries and geocode only after preserving the original agency text.
+
+Before collection, I would archive the URL, collection date, robots.txt response, and the relevant Terms of Service for each state. Permission would be evaluated at the exact paths I intend to request, not inferred from the home page. A disallowed path, login requirement, CAPTCHA, or anti-automation clause would stop automated collection. Public availability alone is not permission to create an aggressive crawler.
+
+I would first look for an API, open-data portal, downloadable CSV, or periodic bulk file. If one exists, I would use it because stable identifiers and documented fields are more valuable than copying an HTML view. Scraping would be justified only for states that publish required events solely as public HTML tables or order-detail pages. PDFs would be downloaded as source documents when permitted, with extraction treated separately because a PDF's visible layout is not a database schema.
+
+The expected volume is modest: dozens of state index pages and a few thousand detail records per annual refresh. Each host would have its own queue with a descriptive user agent, one request at a time, a delay of at least one second, exponential backoff for `429` or `5xx` responses, and no repeated request for an unchanged URL. Raw responses would be cached by retrieval date and content hash. A manifest would record URL, status, timestamp, content type, byte size, checksum, parser version, and any retry. Derived tables would never replace the raw snapshot.
+
+Page changes can break a CSS selector without producing an obvious error. I would test expected columns, plausible row counts, unique license IDs, parse success for dates and coordinates, and the fraction of missing addresses. A daily or weekly run would compare these diagnostics with the previous snapshot and quarantine a result when the table count changes, a required column disappears, or missingness jumps. I would manually inspect a sample of additions, deletions, and changed addresses before publishing an update. This design makes a layout change visible as a failed validation rather than a silent change in the research dataset.
+
+The complete collection and validation workflow is in [`code/assignment04_collect.R`](code/assignment04_collect.R). Clean data and the robots check are stored under [`data/assignment04/`](data/assignment04/).

@@ -1,0 +1,219 @@
+---
+title: "Assignment 6: Text Analytics with quanteda"
+author: "Wenyi Wang"
+date: "2026-11-16"
+format:
+  html:
+    embed-resources: true
+    toc: false
+    code-fold: true
+    code-summary: "Show code"
+execute:
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(dplyr)
+library(ggplot2)
+library(jsonlite)
+library(knitr)
+library(readr)
+
+data_dir <- "data/assignment06"
+manifest <- read_json(file.path(data_dir, "assignment06_manifest.json"))
+summit_words <- read_csv(
+  file.path(data_dir, "summit_top_words.csv"),
+  show_col_types = FALSE
+)
+summit_tags <- read_csv(
+  file.path(data_dir, "summit_top_hashtags.csv"),
+  show_col_types = FALSE
+)
+inaugural <- read_csv(
+  file.path(data_dir, "inaugural_metrics.csv"),
+  show_col_types = FALSE
+)
+nearest <- read_csv(
+  file.path(data_dir, "inaugural_nearest.csv"),
+  show_col_types = FALSE
+)
+wordfish <- read_csv(
+  file.path(data_dir, "inaugural_wordfish.csv"),
+  show_col_types = FALSE
+)
+cpd_available <- file.exists(file.path(data_dir, "cpd_xi_metadata.csv"))
+if (cpd_available) {
+  cpd <- read_csv(
+    file.path(data_dir, "cpd_xi_metadata.csv"),
+    show_col_types = FALSE
+  )
+  cpd_kwic <- read_csv(
+    file.path(data_dir, "cpd_xi_kwic.csv"),
+    show_col_types = FALSE
+  )
+  cpd_keyness <- read_csv(
+    file.path(data_dir, "cpd_keyness_biden.csv"),
+    show_col_types = FALSE
+  )
+}
+```
+
+::: {.callout-note title="Data-generating processes"}
+The summit tweets are a fixed course archive selected by a keyword and a short collection window; they cannot now be recollected under the same platform access. The presidential documents are official texts selected first by the Office of the Federal Register and then by my GovInfo query. The inaugural corpus is selected by the public institution of the inaugural address, not by a search for a topic.
+:::
+
+## Public discussion during the Biden-Xi summit
+
+The archived summit file contains **`r format(manifest$summit$documents, big.mark = ",")` tweets**. Frequent terms and hashtags show what was visible inside this collection, not the prevalence of an opinion in the US public. Posting is self-selected, the query controls who enters the corpus, and retweets or coordinated messages can make a phrase look common without representing more people.
+
+```{r}
+#| label: fig-summit-words
+#| fig-cap: "Most frequent non-stopword features in the archived summit tweets."
+#| fig-width: 8
+#| fig-height: 5
+summit_words |>
+  slice_head(n = 20) |>
+  mutate(feature = reorder(feature, frequency)) |>
+  ggplot(aes(frequency, feature)) +
+  geom_col(fill = "#2A9D8F") +
+  labs(x = "Frequency", y = NULL) +
+  theme_minimal(base_size = 11)
+```
+
+```{r}
+#| label: summit-hashtags
+#| echo: false
+#| tbl-cap: "Ten most frequent hashtags in the archived summit tweets."
+summit_tags |>
+  slice_head(n = 10) |>
+  kable(col.names = c("Hashtag", "Frequency"))
+```
+
+LSA summarizes co-occurrence patterns, so its dimensions describe recurring vocabularies in this archive. They do not automatically identify ideology, support, or a stable public attitude. Hashtag and mention networks have the same limitation: an edge means two features appeared together, not that two people interacted or agreed.
+
+## Presidential documents mentioning Xi Jinping
+
+The final GovInfo query returned **`r if (cpd_available) nrow(cpd) else 0` documents**. The files are cached privately; the website publishes metadata, contexts, and aggregate text statistics rather than the source documents.
+
+```{r}
+#| label: cpd-status
+#| results: asis
+if (!cpd_available) {
+  cat("::: {.callout-warning}\n")
+  cat("The GovInfo collection has not yet been run. Set `GOVINFO_API_KEY` in `.Renviron`, restart R, and run `COLLECT_CPD=true Rscript code/assignment06_collect.R`. No key is written to the project.\n")
+  cat(":::\n")
+}
+```
+
+```{r}
+#| label: cpd-summary
+#| eval: true
+#| echo: false
+if (cpd_available) {
+  cpd |>
+    count(administration = if_else(
+      as.Date(date_issued) < as.Date("2025-01-20"),
+      "Biden", "Trump"
+    )) |>
+    kable(col.names = c("Administration", "Documents"))
+}
+```
+
+```{r}
+#| label: cpd-kwic
+#| eval: true
+#| echo: false
+if (cpd_available) {
+  cpd_kwic |>
+    select(pre, keyword, post) |>
+    slice_head(n = 12) |>
+    kable(col.names = c("Before", "Keyword", "After"))
+}
+```
+
+```{r}
+#| label: fig-cpd-keyness
+#| fig-cap: "Features most distinctive of Biden-administration documents relative to Trump-administration documents in the collected CPD corpus."
+#| fig-width: 8.5
+#| fig-height: 5.5
+if (cpd_available) {
+  cpd_keyness |>
+    slice_max(abs(chi2), n = 20) |>
+    mutate(feature = reorder(feature, chi2)) |>
+    ggplot(aes(chi2, feature, fill = chi2 > 0)) +
+    geom_col(show.legend = FALSE) +
+    scale_fill_manual(values = c("#D1495B", "#2A9D8F")) +
+    labs(x = "Keyness statistic", y = NULL) +
+    theme_minimal(base_size = 10) +
+    theme(panel.grid.minor = element_blank())
+}
+```
+
+The documents are government communication produced for an official record and public audience. `kwic()` makes it possible to read how Xi is named before counting, while keyness compares relative feature frequencies across administrations. A distinctive term may reflect document genre, a specific event, or changing publication volume rather than a change in foreign policy. I therefore interpret keyness only after reading the underlying contexts and checking the dates and document types.
+
+## Inaugural addresses since 1945
+
+The quanteda corpus contains **`r nrow(inaugural)` addresses from `r min(inaugural$year)` through `r max(inaugural$year)`**. The latest included address is **`r inaugural |> slice_max(year, n = 1) |> pull(document)`**, so no manual 2025 addition is needed in this version. If it were absent, I would add the official transcript from the White House or GovInfo, preserve the source URL and retrieval date, and apply the same cleaning rules.
+
+```{r}
+#| label: fig-inaugural-length
+#| fig-cap: "Length of US presidential inaugural addresses, 1945–2025."
+#| fig-width: 9
+#| fig-height: 4.8
+ggplot(inaugural, aes(year, tokens, color = party)) +
+  geom_line(color = "grey75", linewidth = 0.45) +
+  geom_point(size = 2.2) +
+  scale_color_manual(values = c(
+    Democratic = "#2E86AB",
+    Republican = "#D1495B"
+  )) +
+  labs(x = NULL, y = "Tokens", color = NULL) +
+  theme_minimal(base_size = 11) +
+  theme(panel.grid.minor = element_blank())
+```
+
+Length, lexical diversity, and Flesch-Kincaid readability describe different properties. Type-token ratio is mechanically sensitive to document length; readability formulas measure word and sentence patterns, not political sophistication; and cosine similarity detects shared vocabulary without proving shared goals. Party keyness is also descriptive because presidents, eras, and topics are not randomly assigned to parties.
+
+```{r}
+#| label: closest-addresses
+#| echo: false
+#| tbl-cap: "Five most similar address pairs by cosine similarity."
+nearest |>
+  arrange(desc(cosine_similarity)) |>
+  slice_head(n = 5) |>
+  mutate(cosine_similarity = round(cosine_similarity, 3)) |>
+  kable(col.names = c("Address", "Nearest address", "Cosine similarity"))
+```
+
+## What Wordfish measures
+
+```{r}
+#| label: fig-wordfish
+#| fig-cap: "Wordfish document positions for inaugural addresses. Orientation is fixed from Roosevelt 1945 toward Reagan 1981."
+#| fig-width: 9
+#| fig-height: 5.5
+wordfish |>
+  left_join(inaugural |> select(document, year, party), by = "document") |>
+  ggplot(aes(wordfish_position, reorder(document, wordfish_position), color = party)) +
+  geom_point(size = 2.2) +
+  scale_color_manual(values = c(
+    Democratic = "#2E86AB",
+    Republican = "#D1495B"
+  )) +
+  labs(x = "Estimated Wordfish position", y = NULL, color = NULL) +
+  theme_minimal(base_size = 10) +
+  theme(panel.grid.minor = element_blank())
+```
+
+Wordfish treats each document-feature count as a Poisson outcome. A word has an overall frequency and a discrimination parameter, while each document has a latent position and a document-level size parameter. The fitted dimension is whatever single contrast best explains systematic differences in word use; it is not inherently left-right ideology. In these speeches it may combine period, rhetorical style, war and peace, economic conditions, and party. Establishing a substantive meaning would require external validation, sensitivity to preprocessing and document selection, and close reading of words with strong discrimination parameters. The sign is unidentified, so `dir` anchors the orientation; without it, an equivalent fit could be reflected left-to-right.
+
+## Comparison and data note
+
+The tweets are user-produced messages selected by a platform query and an event window; they can support claims about the collected conversation, not all citizens. The presidential documents are institutionally produced and support claims about official rhetoric, not private policy preferences or public reaction. The inaugural addresses are ceremonial texts selected by political tradition and are useful for long-run rhetorical comparison, but their changing historical context limits causal interpretation.
+
+The workflow records source, query, selection, and gaps in [`data/assignment06/assignment06_manifest.json`](data/assignment06/assignment06_manifest.json). GovInfo text remains in the gitignored cache; only metadata, contexts, and aggregate statistics are published. Code is in [`code/assignment06_collect.R`](code/assignment06_collect.R).
+
+*AI-use disclosure:* I used an AI coding assistant to help structure the reproducible workflow and checked the code, package documentation, outputs, and interpretations before submission.

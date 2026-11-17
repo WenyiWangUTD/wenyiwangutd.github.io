@@ -1,0 +1,9 @@
+diagnostic_threshold,error_type,record_id_a,record_id_b,last_name_sim,first_name_sim,dob_sim,match_score,responsible_field,cause
+0.89,False positive,TRS_293,TEA_231,1,0.4476190476190476,1,0.8964534458574731,DOB and last-name agreement,unrelated people with similar identifiers
+0.99,False negative,TRS_3,TEA_3,0.9166666666666666,1,1,0.9854456766238231,last name,last-name typo
+0.99,False negative,TRS_27,TEA_27,0.888888888888889,1,1,0.9805942354984307,last name,last-name typo
+0.99,False negative,TRS_68,TEA_68,0.9166666666666666,1,1,0.9854456766238231,last name,last-name typo
+0.99,False negative,TRS_76,TEA_76,0.8666666666666667,1,1,0.976713082598117,last name,last-name typo
+0.99,False negative,TRS_85,TEA_85,0.8666666666666667,1,1,0.976713082598117,last name,last-name typo
+0.99,False negative,TRS_98,TEA_98,0.9047619047619048,1,1,0.9833664875700835,last name,last-name typo
+0.99,False negative,TRS_100,TEA_100,0.9166666666666666,1,1,0.9854456766238231,last name,last-name typo

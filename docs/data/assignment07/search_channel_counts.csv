@@ -1,0 +1,227 @@
+period,order,channel_title,n
+before,viewCount,CNN,35
+after,viewCount,CNN,24
+after,relevance,FRANCE 24 English,7
+after,viewCount,The Daily Show,7
+before,relevance,CNN,7
+before,relevance,Let's Talk Elections,7
+before,relevance,FRANCE 24 English,6
+after,relevance,The Daily Show,5
+before,relevance,Election Predictions Official,5
+after,relevance,India Today Global,4
+after,viewCount,MS NOW,4
+after,viewCount,NDTV India,4
+before,relevance,India Global Review,4
+before,viewCount,Al Jazeera English,4
+before,viewCount,MS NOW,4
+before,viewCount,NBC News,4
+after,relevance,DW News,3
+after,relevance,iPolitics,3
+after,viewCount,FRANCE 24 English,3
+after,viewCount,Fox News,3
+before,relevance,DW News,3
+before,relevance,NBC News,3
+before,viewCount,CNN-News18,3
+before,viewCount,TLDR News Global,3
+after,relevance,CNN,2
+after,relevance,India Global Review,2
+after,relevance,Jimmy Kimmel Live,2
+after,relevance,News Pinch,2
+after,relevance,Peek TV,2
+after,relevance,TRT World,2
+after,relevance,The Young Turks,2
+after,viewCount,BBC News,2
+after,viewCount,CBS News,2
+after,viewCount,ITV News,2
+after,viewCount,Jimmy Kimmel Live,2
+after,viewCount,News18 MP Chhattisgarh,2
+after,viewCount,Sky News,2
+before,relevance,Bloomberg Television,2
+before,relevance,EUREKA US,2
+before,relevance,Guardian News,2
+before,relevance,NewsX World,2
+before,relevance,Reuters,2
+before,relevance,TODAY,2
+before,relevance,The Daily Show,2
+before,relevance,The United States Chronicles,2
+before,relevance,USA TODAY,2
+before,viewCount,CBS News,2
+before,viewCount,ITV News,2
+before,viewCount,LastWeekTonight,2
+before,viewCount,TODAY,2
+before,viewCount,The Daily Show,2
+before,viewCount,The New York Times,2
+after,relevance,African Diaspora News Channel,1
+after,relevance,American Immigration TV - AK Poku Law,1
+after,relevance,AtlanticCouncil,1
+after,relevance,Ben Shapiro,1
+after,relevance,Bernie Sanders,1
+after,relevance,Breaking Points,1
+after,relevance,Brut America,1
+after,relevance,Business Insider,1
+after,relevance,CGTN America,1
+after,relevance,Chatham House,1
+after,relevance,DWS News,1
+after,relevance,Dr Gaurav Garg,1
+after,relevance,Drishti IAS : English,1
+after,relevance,Firstpost,1
+after,relevance,Hajela's IAS,1
+after,relevance,Heather Cox Richardson,1
+after,relevance,Jubilee,1
+after,relevance,Khabargaon,1
+after,relevance,LastWeekTonight,1
+after,relevance,Late Night with Seth Meyers,1
+after,relevance,Let's Talk Elections,1
+after,relevance,MS NOW,1
+after,relevance,MaanyaGupta,1
+after,relevance,MeidasTouch,1
+after,relevance,Michael Knowles,1
+after,relevance,News18 Urdu,1
+after,relevance,Newsmax,1
+after,relevance,Piers Morgan Uncensored,1
+after,relevance,Pod Save America,1
+after,relevance,Public News,1
+after,relevance,Right Side Broadcasting Network,1
+after,relevance,Russell Howard,1
+after,relevance,Senator John Kennedy,1
+after,relevance,SmartWork Labs,1
+after,relevance,SoSorry,1
+after,relevance,StudyIQ IAS,1
+after,relevance,Tathastu-ICS ,1
+after,relevance,The American Ledger,1
+after,relevance,The Cutting Edge School,1
+after,relevance,The Fletcher School,1
+after,relevance,The Hill,1
+after,relevance,The Korean Vegan,1
+after,relevance,The Majority Report w/ Sam Seder,1
+after,relevance,The Tonight Show Starring Jimmy Fallon,1
+after,relevance,The United States Chronicles,1
+after,relevance,The View,1
+after,relevance,ThePowerUnpacked,1
+after,relevance,US Explains 168,1
+after,relevance,Unacademy IAS: English,1
+after,relevance,Valuetainment Short Clips,1
+after,relevance,Vellum World,1
+after,relevance,Visplained.,1
+after,relevance,WCNC,1
+after,relevance,WE News English,1
+after,relevance,World Order with Qamar Cheema ,1
+after,viewCount,60 Minutes,1
+after,viewCount,ABC News In-depth,1
+after,viewCount,Ankit Inspires India,1
+after,viewCount,Associated Press,1
+after,viewCount,Bernie Sanders,1
+after,viewCount,Breaking Points,1
+after,viewCount,Brian Tyler Cohen,1
+after,viewCount,Brut America,1
+after,viewCount,CBC News,1
+after,viewCount,CBS TEXAS,1
+after,viewCount,CNN-News18,1
+after,viewCount,DD News,1
+after,viewCount,DWS News,1
+after,viewCount,FOX 11 Los Angeles,1
+after,viewCount,Firstpost,1
+after,viewCount,Guardian Australia,1
+after,viewCount,LastWeekTonight,1
+after,viewCount,Late Night with Seth Meyers,1
+after,viewCount,Live Hindustan,1
+after,viewCount,MattMorseTV,1
+after,viewCount,MeidasTouch,1
+after,viewCount,Mr. Beat,1
+after,viewCount,NBC 10 WJAR,1
+after,viewCount,NBC News,1
+after,viewCount,NDTV Profit,1
+after,viewCount,Omar Agamy,1
+after,viewCount,PBD Podcast,1
+after,viewCount,Piers Morgan Uncensored,1
+after,viewCount,Pod Save America,1
+after,viewCount,Right Side Broadcasting Network,1
+after,viewCount,Russell Howard,1
+after,viewCount,Saturday Night Live,1
+after,viewCount,Star News,1
+after,viewCount,StevenCrowder,1
+after,viewCount,TLDR News Global,1
+after,viewCount,TODAY,1
+after,viewCount,TYT Investigates,1
+after,viewCount,The Deshbhakt,1
+after,viewCount,The Majority Report w/ Sam Seder,1
+after,viewCount,The Tonight Show Starring Jimmy Fallon,1
+after,viewCount,The Young Turks,1
+after,viewCount,USA TODAY,1
+after,viewCount,WION,1
+before,relevance,99TV Telugu,1
+before,relevance,Allan Lichtman,1
+before,relevance,America Daily,1
+before,relevance,C-SPAN,1
+before,relevance,CBS News,1
+before,relevance,CBS TEXAS,1
+before,relevance,CGTN America,1
+before,relevance,ClearValue Tax,1
+before,relevance,DWS News,1
+before,relevance,Depressed Ginger,1
+before,relevance,Drop Site News ,1
+before,relevance,EDU TERIA COMPETITIVE EXAMS,1
+before,relevance,Election Time,1
+before,relevance,FOX 11 Los Angeles,1
+before,relevance,FOX 29 Philadelphia,1
+before,relevance,FOX 9 Minneapolis-St. Paul,1
+before,relevance,FRONTLINE PBS | Official,1
+before,relevance,Federal Elections Analysis,1
+before,relevance,Finance Bureau,1
+before,relevance,Fox News,1
+before,relevance,Humanly Explained ,1
+before,relevance,InPulso World,1
+before,relevance,Institute of Politics at Harvard Kennedy School,1
+before,relevance,JForrest English,1
+before,relevance,LastWeekTonight,1
+before,relevance,MS NOW,1
+before,relevance,Major Oberoi,1
+before,relevance,Mr. Beat,1
+before,relevance,Next Up with Mark Halperin,1
+before,relevance,OANDA,1
+before,relevance,Piers Morgan Uncensored,1
+before,relevance,Richie B Radio,1
+before,relevance,SUNO NEWS HD,1
+before,relevance,Sanjay Kathuria ,1
+before,relevance,Still Counting,1
+before,relevance,Super Intelligence News,1
+before,relevance,TVOne USA,1
+before,relevance,The Mind Forge ,1
+before,relevance,The OneMic Show,1
+before,relevance,The Rest Is Politics US,1
+before,relevance,The World from A to Z with Carl Azuz,1
+before,relevance,Tiny Big Questions,1
+before,relevance,Vietnam Today,1
+before,relevance,Vox,1
+before,viewCount,60 Minutes,1
+before,viewCount,ABC News,1
+before,viewCount,ABC News In-depth,1
+before,viewCount,Allan Lichtman,1
+before,viewCount,BBC News Hindi,1
+before,viewCount,Bloomberg Television,1
+before,viewCount,CBC News,1
+before,viewCount,Channel 4 News,1
+before,viewCount,ClearValue Tax,1
+before,viewCount,David Pakman,1
+before,viewCount,DeFranco News Clips,1
+before,viewCount,FRONTLINE PBS | Official,1
+before,viewCount,Finance Bureau,1
+before,viewCount,Financial Times,1
+before,viewCount,Guardian News,1
+before,viewCount,Hang Out with Sean Hannity,1
+before,viewCount,India Global Review,1
+before,viewCount,Jansatta,1
+before,viewCount,LBC,1
+before,viewCount,Mint,1
+before,viewCount,PBS NewsHour,1
+before,viewCount,Piers Morgan Uncensored,1
+before,viewCount,Rebel HQ,1
+before,viewCount,Sky News,1
+before,viewCount,TV9 Hindi News,1
+before,viewCount,The Bulwark,1
+before,viewCount,The Financial Express,1
+before,viewCount,The United States Chronicles,1
+before,viewCount,USA TODAY,1
+before,viewCount,WXYZ-TV Detroit | Channel 7,1
+before,viewCount,ZDFheute Nachrichten,1
+before,viewCount,[팟빵] 최욱의 매불쇼,1

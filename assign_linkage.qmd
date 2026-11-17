@@ -1,0 +1,224 @@
+---
+title: "Assignment 8: Record Linkage"
+author: "Wenyi Wang"
+date: "2026-11-16"
+format:
+  html:
+    embed-resources: true
+    toc: false
+    code-fold: true
+    code-summary: "Show code"
+execute:
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(dplyr)
+library(ggplot2)
+library(jsonlite)
+library(knitr)
+library(readr)
+library(scales)
+library(tidyr)
+
+data_dir <- "data/assignment08"
+corruption <- read_csv(
+  file.path(data_dir, "corruption_rate_results.csv"),
+  show_col_types = FALSE
+)
+weights <- read_csv(
+  file.path(data_dir, "estimated_weights.csv"),
+  show_col_types = FALSE
+)
+blocking <- read_csv(
+  file.path(data_dir, "blocking_summary.csv"),
+  show_col_types = FALSE
+)
+blocking_quality <- read_csv(
+  file.path(data_dir, "blocking_quality.csv"),
+  show_col_types = FALSE
+)
+curve <- read_csv(
+  file.path(data_dir, "threshold_curve.csv"),
+  show_col_types = FALSE
+)
+curve_change <- read_csv(
+  file.path(data_dir, "full_key_curve_change.csv"),
+  show_col_types = FALSE
+)
+review <- read_csv(
+  file.path(data_dir, "review_band.csv"),
+  show_col_types = FALSE
+)
+methods <- read_csv(
+  file.path(data_dir, "method_comparison.csv"),
+  show_col_types = FALSE
+)
+errors <- read_csv(
+  file.path(data_dir, "sensitivity_error_examples.csv"),
+  show_col_types = FALSE
+)
+error_causes <- read_csv(
+  file.path(data_dir, "sensitivity_error_causes.csv"),
+  show_col_types = FALSE
+)
+downstream <- read_csv(
+  file.path(data_dir, "downstream_count_bias.csv"),
+  show_col_types = FALSE
+)
+additions <- read_csv(
+  file.path(data_dir, "probabilistic_additions.csv"),
+  show_col_types = FALSE
+)
+manifest <- read_json(file.path(data_dir, "assignment08_manifest.json"))
+chosen_threshold <- manifest$threshold
+```
+
+::: {.callout-note title="Question and data note"}
+The linked file is intended to estimate how many simulated people appear in both the Teacher Retirement System (TRS) and Texas Education Agency (TEA) files. Both files contain 500 fictional records, the complete answer key contains 100 true pairs, and `set.seed(42)` is retained. I publish aggregate results and fictional record IDs, not the generated names or dates of birth.
+:::
+
+## Model and assumptions
+
+The Fellegi-Sunter model estimates how likely each field agreement is among true matches (`m`) and non-matches (`u`), then combines the evidence into a match weight or probability under explicit assumptions. The workshop's weighted score instead assigns fixed importance to three similarities and is not a calibrated probability.
+
+A reliable unique identifier can be joined deterministically because agreement carries much stronger identifying information than a common name or birth date. Records without such an identifier require probabilistic evidence and uncertainty; even an ID should be audited when entry errors, reuse, or missingness are possible.
+
+My deterministic stage applies the workshop's three sequential rules: exact standardized full name and DOB; standardized last name, first initial, and DOB; and exact full name with DOB within one day. It removes linked records after each rule. The probabilistic stage uses Jaro-Winkler similarities for both names and an exact/one-day DOB score, blocks on the first letter of standardized last name, and greedily retains one-to-one pairs from highest to lowest score.
+
+## Changing the data-generating process
+
+```{r}
+#| label: corruption-table
+#| echo: false
+#| tbl-cap: "Linkage performance as the share of corrupted true matches changes."
+corruption |>
+  mutate(
+    corruption_rate = percent(corruption_rate, accuracy = 1),
+    across(c(precision, recall, f1), ~ percent(.x, accuracy = 0.1))
+  ) |>
+  kable(
+    col.names = c(
+      "Corruption", "Rule 1", "Rule 2", "Rule 3", "Probabilistic",
+      "True positive", "False positive", "False negative",
+      "Precision", "Recall", "F1"
+    )
+  )
+```
+
+Recall changes most: it falls from **`r percent(corruption$recall[corruption$corruption_rate == 0.10], accuracy = 0.1)`** at 10% corruption to **`r percent(corruption$recall[corruption$corruption_rate == 0.40], accuracy = 0.1)`** at 40%, while precision remains 100% in these runs. More corruption moves pairs out of exact Rule 1. Rules 2 and 3 recover abbreviated names and one-day DOB shifts, but last-name typos depend on the probabilistic score and some fall below 0.95.
+
+## Complete answer key and blocking
+
+I removed the workshop line that sliced the validation data to its first 100 rows. The maximum movement of precision, recall, or F1 across the threshold curve was **`r percent(max(abs(c(curve_change$precision_change, curve_change$recall_change, curve_change$f1_change)), na.rm = TRUE), accuracy = 0.1)`**. This is not evidence that the shortcut is safe: the supplied `create_validation_set()` produces exactly 100 rows, so “first 100” happens to equal the complete key. In a real evaluation, an arbitrary prefix could overrepresent easy cases, exclude later sources or groups, and bias every reported metric.
+
+Blocking reduced candidate pairs from **`r comma(blocking$candidates_before)`** to **`r comma(blocking$candidates_after)`**, a reduction of **`r percent(blocking$reduction_share, accuracy = 0.1)`**. It removed **`r blocking$true_pairs_removed`** of the **`r blocking$unmatched_true_pairs`** true pairs still needing probabilistic linkage, so measured recall did not change here.
+
+```{r}
+#| label: blocking-quality
+#| echo: false
+blocking_quality |>
+  mutate(across(c(precision, recall, f1), ~ percent(.x, accuracy = 0.1))) |>
+  kable(
+    col.names = c(
+      "Candidate method", "Links", "TP", "FP", "FN",
+      "Precision", "Recall", "F1"
+    )
+  )
+```
+
+The zero loss is specific to this simulation. If corruption changed the first letter of a true last name, that pair would become unreachable regardless of its score. A production design would use multiple or phonetic blocks and measure coverage on clerically reviewed pairs.
+
+## Data-driven weights and threshold policy
+
+```{r}
+#| label: weight-table
+#| echo: false
+#| tbl-cap: "Agreement probabilities and normalized log(m/u) weights."
+weights |>
+  mutate(
+    m = round(m, 4),
+    u = round(u, 6),
+    log_m_over_u = round(log_m_over_u, 3),
+    weight = percent(weight, accuracy = 0.1)
+  ) |>
+  kable(col.names = c("Field", "m", "u", "log(m/u)", "Weight"))
+```
+
+I estimated agreement rates from the complete simulated pair set with one-half-count smoothing, computed `log(m/u)`, and normalized the three positive weights. DOB receives **`r percent(weights$weight[weights$field == "dob"], accuracy = 0.1)`** because exact DOB agreement is extremely rare among non-matches in this generator. This is evidence from these data, not a universal claim that DOB should dominate other administrative files.
+
+```{r}
+#| label: fig-threshold
+#| fig-cap: "Precision, recall, and F1 across match-score thresholds. The vertical line marks the selected policy threshold."
+#| fig-width: 8.5
+#| fig-height: 5
+curve |>
+  select(threshold, precision, recall, f1) |>
+  pivot_longer(-threshold, names_to = "metric", values_to = "value") |>
+  ggplot(aes(threshold, value, color = metric)) +
+  geom_line(linewidth = 0.9) +
+  geom_point(size = 1.4) +
+  geom_vline(
+    xintercept = chosen_threshold,
+    linetype = "dashed",
+    color = "grey35"
+  ) +
+  scale_y_continuous(labels = percent_format()) +
+  scale_color_manual(values = c(
+    precision = "#2A9D8F",
+    recall = "#E76F51",
+    f1 = "#6C5CE7"
+  )) +
+  labs(x = "Threshold", y = NULL, color = NULL) +
+  theme_minimal(base_size = 11) +
+  theme(legend.position = "bottom", panel.grid.minor = element_blank())
+```
+
+I choose **`r chosen_threshold`**, the highest threshold attaining the maximum observed F1. Wrongly joining two people's administrative records can expose or attribute information to the wrong person, so I prioritize precision and choose the most conservative threshold that does not reduce measured recall. The review band is **`r review$lower_threshold` to below `r review$upper_threshold`**: it contains **`r review$pairs`** pair, of which **`r review$true_matches`** is correct. A reviewer should reject that case on this answer key, although one simulated case is too small to estimate review accuracy.
+
+## Quality, errors, and downstream consequences
+
+```{r}
+#| label: method-table
+#| echo: false
+#| tbl-cap: "Performance of deterministic, probabilistic-addition, and combined stages."
+methods |>
+  mutate(across(c(precision, recall, f1), ~ percent(.x, accuracy = 0.1))) |>
+  kable(
+    col.names = c(
+      "Method", "Links", "TP", "FP", "FN",
+      "Precision", "Recall", "F1"
+    )
+  )
+```
+
+The deterministic rules find **`r additions$deterministic_true_matches`** true pairs. The probabilistic stage adds **`r additions$additional_true_matches`** true pairs and **`r additions$additional_false_matches`** false pairs, producing perfect measured precision and recall at the chosen threshold. Consequently, the requested list of ten false positives and ten false negatives does not exist in this run. Rather than invent errors, I diagnose all failures at the closest thresholds that do fail: 0.89 admits one false positive, while 0.99 misses seven true pairs.
+
+```{r}
+#| label: error-table
+#| echo: false
+#| tbl-cap: "All observed errors at the nearest failing sensitivity thresholds."
+errors |>
+  mutate(across(ends_with("_sim"), ~ round(.x, 3)), match_score = round(match_score, 3)) |>
+  kable(
+    col.names = c(
+      "Threshold", "Error", "TRS ID", "TEA ID", "Last-name sim.",
+      "First-name sim.", "DOB sim.", "Score", "Responsible field", "Cause"
+    )
+  )
+```
+
+All seven sensitivity false negatives are last-name typos; their exact first names and DOBs are not enough at 0.99. The false positive has an exact last name and DOB but a weak first-name similarity, showing how a heavily weighted exact field can make unrelated people look plausible. These causes are unusually clean because the generator corrupts only one field per affected true match.
+
+At the chosen threshold, the linked file estimates **`r downstream$estimated_overlap`** people in both systems against a true count of **`r downstream$true_overlap`**. False positives would push the count upward and false negatives downward; here both are zero, so net bias is zero. That cancellation should never be assumed: even equal counts of the two error types could affect different groups and bias subgroup rates.
+
+## Limits
+
+This linked file demonstrates a method, not the reliability of a real TRS-TEA linkage. The answer key is generated and complete, names come from short lists, corruption affects one field at a time, and there are no missing values, households, aliases, duplicate people, or group-specific error rates. Real data would need secure handling, a defensible validation sample, clerical review, sensitivity to alternative blocks and thresholds, and fairness checks by name frequency and data quality. Without a trustworthy answer key, reported precision and recall become estimates whose credibility depends on how validation cases were selected.
+
+The reproducible workflow is in [`code/assignment08_linkage.R`](code/assignment08_linkage.R), and the data-generating process, rules, weights, threshold, review band, and known gaps are recorded in [`data/assignment08/assignment08_manifest.json`](data/assignment08/assignment08_manifest.json).
+
+*AI-use disclosure:* I used an AI coding assistant to help adapt the instructor's workshop, implement diagnostics, and structure the report. I checked the generated data, linkage rules, metrics, and every reported output before submission.

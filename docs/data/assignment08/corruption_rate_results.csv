@@ -1,0 +1,4 @@
+corruption_rate,rule1_links,rule2_links,rule3_links,probabilistic_links,true_positive,false_positive,false_negative,precision,recall,f1
+0.1,90,4,2,3,99,0,1,1,0.99,0.9949748743718593
+0.2,80,8,5,5,98,0,2,1,0.98,0.98989898989899
+0.4,60,12,17,6,95,0,5,1,0.95,0.9743589743589743

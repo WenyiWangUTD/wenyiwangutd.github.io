@@ -1,0 +1,5 @@
+search,period,order,returned,total_reported,duplicate_video_ids,unique_video_ids
+pre_relevance,before,relevance,100,1000000,3,97
+pre_views,before,viewCount,100,1000000,3,97
+post_relevance,after,relevance,100,1000000,9,91
+post_views,after,viewCount,100,1000000,0,100

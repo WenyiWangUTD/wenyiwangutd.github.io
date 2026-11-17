@@ -1,0 +1,9 @@
+human_label,dictionary_label,comments
+negative,negative,10
+negative,neither,9
+negative,positive,3
+neither,negative,3
+neither,neither,7
+neither,positive,2
+positive,neither,3
+positive,positive,3

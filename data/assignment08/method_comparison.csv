@@ -1,0 +1,4 @@
+method,links,true_positive,false_positive,false_negative,precision,recall,f1
+Deterministic only,93,93,0,7,1,0.93,0.9637305699481865
+Probabilistic additions only,7,7,0,93,1,0.07,0.13084112149532712
+Combined,100,100,0,0,1,1,1

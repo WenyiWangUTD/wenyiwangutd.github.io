@@ -1,0 +1,8 @@
+books_rows 100
+wiki_reserve_rows 196
+population_rows 239
+matched_countries 166
+same_vintage_countries 34
+wiki_date_min 2024-03-01
+wiki_date_max 2026-11-16
+wdi_years 2023,2024,2025
